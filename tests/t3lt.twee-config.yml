@@ -4,3 +4,8 @@ sugarcube-2:
       name: macroName
       container: true
       selfClose: true
+    closedCustomMacro:
+      name: closedCustomMacro
+    openCustomMacro:
+      name: openCustomMacro
+      container: true

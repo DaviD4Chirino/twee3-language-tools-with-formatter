@@ -586,5 +586,5 @@ export async function activate(ctx: vscode.ExtensionContext) {
 
 	activateFolding(ctx);
 
-	formatter();
+	await formatter();
 }

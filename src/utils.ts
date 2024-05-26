@@ -50,30 +50,67 @@ export function indentationConstructor(levels: number): string {
 	}
 	return arr.join("");
 }
+
+export type isMacroContainer = {
+	container: boolean;
+	startOfMacro: boolean;
+};
 export function isMacroContainer(
 	text: string,
 	macroList: Record<string, macroDef>
-): boolean {
+): isMacroContainer {
 	// return new RegExp(IF_MACRO).test(text);
 	// const macros: any = await macroList();
 
-	const macroNameRegex = /<<\s*\w+/gm.exec(text);
-	if (!macroNameRegex) return false;
+	const macroNameRegex = /<<\/?\s*(\w*)/gm.exec(text);
+	// console.log(macroNameRegex);
+	if (!macroNameRegex)
+		return {
+			container: false,
+			startOfMacro: false,
+		};
 
-	const macroName = macroNameRegex[0].replace("<<", "").trim();
+	const OPEN_MACRO_TOKEN: RegExp = /<<[^\/]/gm;
+	const CLOSED_MACRO_TOKEN: RegExp = /<<\//gm;
+	// if (OPEN_MACRO_TOKEN.test(text)) {
+	// 	console.log("is the start of the macro");
+	// 	return true;
+	// }
+	// console.log(macroNameRegex);
 
-	// console.log(macroName);
+	const macroName = macroNameRegex[1];
+	const result: isMacroContainer = {
+		container: false,
+		startOfMacro: false,
+	};
+
+	// // console.log(macroName);
 	for (const key in macroList) {
 		if (Object.prototype.hasOwnProperty.call(macroList, key)) {
 			const macro: macroDef = macroList[key];
 			if (macro.name == macroName) {
 				if (macro["container"]) {
-					console.log(macro.name + " is container ");
-					return true;
+					if (OPEN_MACRO_TOKEN.test(macroNameRegex[0])) {
+						console.log(macroName + " is open macro ");
+
+						return {
+							container: macro["container"],
+							startOfMacro: true,
+						};
+					}
+					if (CLOSED_MACRO_TOKEN.test(macroNameRegex[0])) {
+						console.log(macroName + " is closed macro ");
+						return {
+							container: macro["container"],
+							startOfMacro: false,
+						};
+					}
 				}
-				console.log(macro.name + " is not container ");
 			}
 		}
 	}
-	return false;
+	return {
+		container: false,
+		startOfMacro: false,
+	};
 }

@@ -1,0 +1,73 @@
+:: StoryData
+{
+"ifid": "0C145200-B086-4BE9-9684-F0680B7DE944",
+"format": "SugarCube",
+"format-version": "2"
+}
+
+:: Main
+
+/* This should be separated */
+::StuckPassage
+
+/* this should be deleted */
+::
+
+/*TODO */
+:: ThesePassagesShouldBeSeparated
+:: ThesePassagesShouldBeSeparated
+:: ThesePassagesShouldBeSeparated
+:: ThesePassagesShouldBeSeparated
+
+:: ThisShouldNot
+/* */
+/* There should not be space between the (<<) and (>>) with their closest text token */
+<<      if condition      >>
+
+                    <</    if>>
+
+/* if the end of a macro has anithing in the same line, it will be moved below */
+<<print >>This should be in a new line
+
+<<if condition>><</if>>
+
+
+
+/* Identation test, should look like this */
+
+/* 
+<<if condition>>
+	<<if condition>>
+		<<if condition>>
+			<<print>>
+			<<else>>
+			<<elseif condition>>
+			<<closedCustomMacro>>
+			<<openCustomMacro>>
+				asdasdasd
+			<</openCustomMacro>>
+		<</if>>
+	<</if>>
+<</if>> 
+*/
+
+<<if condition>>
+<<elseif condition>>
+test
+
+<<print >>
+
+<<openCustomMacro>>
+test
+<</openCustomMacro>>
+text
+<</if>>
+
+
+
+
+
+
+
+
+

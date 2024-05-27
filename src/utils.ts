@@ -91,15 +91,12 @@ export function isMacroContainer(
 			if (macro.name == macroName) {
 				if (macro["container"]) {
 					if (OPEN_MACRO_TOKEN.test(macroNameRegex[0])) {
-						console.log(macroName + " is open macro ");
-
 						return {
 							container: macro["container"],
 							startOfMacro: true,
 						};
 					}
 					if (CLOSED_MACRO_TOKEN.test(macroNameRegex[0])) {
-						console.log(macroName + " is closed macro ");
 						return {
 							container: macro["container"],
 							startOfMacro: false,
@@ -113,4 +110,21 @@ export function isMacroContainer(
 		container: false,
 		startOfMacro: false,
 	};
+}
+
+export function inRange(number: number, min: number, max: number): boolean {
+	return number >= min && number <= max;
+}
+
+export function inAnyRange(
+	number: number,
+	ranges: [[number, number]]
+): Boolean {
+	for (const r in ranges) {
+		const range: [number, number] = ranges[r];
+		if (inRange(number, range[0], range[1])) {
+			return true;
+		}
+	}
+	return false;
 }

@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { indentationConstructor, isMacroContainer } from "../utils";
+import { inAnyRange, indentationConstructor, isMacroContainer } from "../utils";
 import { macroList } from "./macros";
 import { clamp } from "lodash";
 
@@ -52,6 +52,7 @@ const FULL_DOCUMENT_RULES: FullDocumentRules = {
 };
 /* A capture group of all the possible comments */
 const INSIDE_COMMENT: RegExp = /(\/\*([\s\S]*?)\*\/)|(\/%([\s\S]*?)%\/)|(<!--([\s\S]*?)-->)/gm;
+/** Index[0] is the start of the pattern, [1] is the last position */
 
 export async function formatter() {
 	vscode.languages.registerDocumentFormattingEditProvider("twee3-sugarcube-2", {
@@ -66,19 +67,21 @@ export async function formatter() {
 
 			const modifications: vscode.TextEdit[] = [];
 
-			await indentation(document, modifications);
-
-			/** Index[0] is the start of the pattern, [1] is the last position */
+			var insideComment: RegExpMatchArray | null = fullText.match(
+				INSIDE_COMMENT
+			);
 			let ranges: [[number, number]] = [[0, 0]];
 
-			var match: RegExpMatchArray | null = fullText.match(INSIDE_COMMENT);
-
-			if (match) {
+			if (insideComment) {
 				/** I have no idea what is happening here, but oh well */
-				while ((match = INSIDE_COMMENT.exec(fullText))) {
-					ranges.push([match.index as number, INSIDE_COMMENT.lastIndex]);
+				while ((insideComment = INSIDE_COMMENT.exec(fullText))) {
+					ranges.push([
+						insideComment.index as number,
+						INSIDE_COMMENT.lastIndex,
+					]);
 				}
 			}
+			await indentation(document, modifications, ranges);
 
 			mainLoop: for (const rule in FULL_DOCUMENT_RULES) {
 				if (Object.prototype.hasOwnProperty.call(FULL_DOCUMENT_RULES, rule)) {
@@ -86,24 +89,10 @@ export async function formatter() {
 					const currentExec = currentRule.regex.exec(fullText);
 
 					if (currentExec) {
-						// console.log(
-						// 	FULL_DOCUMENT_RULES.EMPTY_PASSAGES.regex.exec(fullText)?.index
-						// );
-
-						for (let r in ranges) {
-							const range: [number, number] = ranges[r];
-							// console.log(range);
-
-							if (
-								currentExec.index >= range[0] &&
-								currentExec.index <= range[1]
-							) {
-								console.log(rule + " is inside comment");
-
-								continue mainLoop;
-							}
+						if (inAnyRange(currentExec.index, ranges)) {
+							console.log(rule + " is inside comment");
+							continue mainLoop;
 						}
-
 						modifications.push(
 							vscode.TextEdit.replace(
 								fullDocumentRange,
@@ -120,7 +109,8 @@ export async function formatter() {
 
 export async function indentation(
 	document: vscode.TextDocument,
-	modifications: vscode.TextEdit[]
+	modifications: vscode.TextEdit[],
+	ranges: [[number, number]]
 ) {
 	const newMacroList = await macroList();
 	const numLines = document.lineCount;
@@ -131,10 +121,7 @@ export async function indentation(
 	}
 	function applyIndentation(line: vscode.TextLine, level: number) {
 		modifications.push(
-			vscode.TextEdit.insert(
-				line.range.start,
-				indentationConstructor(level) + level
-			)
+			vscode.TextEdit.insert(line.range.start, indentationConstructor(level))
 		);
 	}
 	for (let i = 0; i < numLines; i++) {

@@ -34,21 +34,20 @@
 
 
 /* Identation test, should look like this */
+the Identation work even with comments, idk how to fix it so
 
 /* 
 <<if condition>>
-	<<if condition>>
-		<<if condition>>
-			<<print>>
-			<<else>>
-			<<elseif condition>>
-			<<closedCustomMacro>>
-			<<openCustomMacro>>
-				asdasdasd
-			<</openCustomMacro>>
-		<</if>>
-	<</if>>
-<</if>> 
+	<<elseif condition>>
+	test
+	
+	<<print>>
+	
+	<<openCustomMacro>>
+		test
+	<</openCustomMacro>>
+	text
+<</if>>
 */
 
 <<if condition>>

@@ -52,6 +52,9 @@ const FULL_DOCUMENT_RULES: FullDocumentRules = {
 };
 /* A capture group of all the possible comments */
 const INSIDE_COMMENT: RegExp = /(\/\*([\s\S]*?)\*\/)|(\/%([\s\S]*?)%\/)|(<!--([\s\S]*?)-->)/gm;
+
+const SINGLE_LINE_MACROS: RegExp = />>(?=\S)/gm;
+
 /** Index[0] is the start of the pattern, [1] is the last position */
 
 export async function formatter() {
@@ -130,27 +133,30 @@ export async function indentation(
 		//*remove any indentation
 		modifications.push(vscode.TextEdit.replace(line.range, line.text.trim()));
 
-		if (/>>(?=\S)/gm.test(line.text)) {
+		// do it here to fix a bug where sometimes it messes indentation
+		if (SINGLE_LINE_MACROS.test(line.text)) {
 			modifications.push(
 				vscode.TextEdit.replace(
 					line.range,
-					line.text.replace(/>>(?=\S)/gm, ">>\n")
+					line.text.replace(SINGLE_LINE_MACROS, ">>\n")
 				)
 			);
 			applyIndentation(line, indentationLevel);
 			continue;
 		}
-		const isContainer: isMacroContainer = isMacroContainer(
+
+		const macroInfo: isMacroContainer = isMacroContainer(
 			line.text,
 			newMacroList
 		);
-		if (isContainer.container && !isContainer.startOfMacro) {
+
+		if (macroInfo.container && !macroInfo.startOfMacro) {
 			setIndentationLevel(-1);
 		}
 
 		applyIndentation(line, indentationLevel);
 
-		if (isContainer.container && isContainer.startOfMacro) {
+		if (macroInfo.container && macroInfo.startOfMacro) {
 			setIndentationLevel(1);
 		}
 	}

@@ -1,6 +1,12 @@
 import * as vscode from "vscode";
-import { inAnyRange, indentationConstructor, isMacroContainer } from "../utils";
-import { macroList } from "./macros";
+import {
+	inAnyRange,
+	indentationConstructor,
+	getMacroData,
+	macroData,
+	isParent,
+} from "../utils";
+import { macroDef, macroList } from "./macros";
 import { clamp } from "lodash";
 
 type FullDocumentRules = {
@@ -42,13 +48,18 @@ const FULL_DOCUMENT_RULES: FullDocumentRules = {
 	},
 	NOT_MUCH_SPACE: {
 		regex: /\n{2,}/gm,
-		replacement: "\\n\\n",
+		replacement: "",
 	},
 
 	// NO_MULTILINE_EMPTY_MACROS: {
 	// 	regex: />>\s+<<\//gm,
 	// 	replacement: ">><</",
 	// },
+
+	STICKY_SET: {
+		regex: /<<\s*set(?=[^a-zA-Z0-9 ])/gm,
+		replacement: "<<set ",
+	},
 };
 /* A capture group of all the possible comments */
 const INSIDE_COMMENT: RegExp = /(\/\*([\s\S]*?)\*\/)|(\/%([\s\S]*?)%\/)|(<!--([\s\S]*?)-->)/gm;
@@ -115,9 +126,14 @@ export async function indentation(
 	modifications: vscode.TextEdit[],
 	ranges: [[number, number]]
 ) {
+	const childIndenters = ["else", "elseif", "case"];
 	const newMacroList = await macroList();
+	console.log(newMacroList);
+
 	const numLines = document.lineCount;
+	const fullText: string = document.getText();
 	let indentationLevel = 0;
+	let childIndentation: Boolean = false;
 
 	function setIndentationLevel(amount: number) {
 		indentationLevel = clamp(indentationLevel + amount, 0, Infinity);
@@ -130,34 +146,68 @@ export async function indentation(
 	for (let i = 0; i < numLines; i++) {
 		const line: vscode.TextLine = document.lineAt(i);
 
+		// console.log(fullText.indexOf(line.text));
+
 		//*remove any indentation
 		modifications.push(vscode.TextEdit.replace(line.range, line.text.trim()));
 
 		// do it here to fix a bug where sometimes it messes indentation
-		if (SINGLE_LINE_MACROS.test(line.text)) {
-			modifications.push(
-				vscode.TextEdit.replace(
-					line.range,
-					line.text.replace(SINGLE_LINE_MACROS, ">>\n")
-				)
-			);
-			applyIndentation(line, indentationLevel);
-			continue;
-		}
+		// if (SINGLE_LINE_MACROS.test(line.text)) {
+		// 	modifications.push(
+		// 		vscode.TextEdit.replace(
+		// 			line.range,
+		// 			line.text.replace(SINGLE_LINE_MACROS, ">>\n")
+		// 		)
+		// 	);
+		// 	applyIndentation(line, indentationLevel);
+		// 	continue;
+		// }
 
-		const macroInfo: isMacroContainer = isMacroContainer(
-			line.text,
-			newMacroList
-		);
+		const macroInfo: macroData = getMacroData(line.text, newMacroList);
 
-		if (macroInfo.container && !macroInfo.startOfMacro) {
+		// if (macroInfo.start) console.log(macroInfo);
+
+		if (macroInfo.container && !macroInfo.start) {
 			setIndentationLevel(-1);
 		}
+		if (
+			(macroInfo.parents && childIndenters.includes(macroInfo.name || "")) ||
+			(childIndentation && indentationLevel == 0)
+		) {
+			childIndentation = false;
+		}
 
-		applyIndentation(line, indentationLevel);
+		applyIndentation(line, indentationLevel + (childIndentation ? 1 : 0));
 
-		if (macroInfo.container && macroInfo.startOfMacro) {
+		if (macroInfo.container && macroInfo.start) {
 			setIndentationLevel(1);
 		}
+		if (macroInfo.parents && childIndenters.includes(macroInfo.name || "")) {
+			childIndentation = true;
+		}
+
+		// if ((macroInfo.container && !macroInfo.start) || macroInfo.parents) {
+		// 	setIndentationLevel(-1);
+		// }
+
+		// // if (
+		// // 	macroInfo.parents ||
+		// // 	indentationLevel <= 1 ||
+		// // 	(macroInfo.container && macroInfo.children && !macroInfo.start)
+		// // ) {
+		// // 	childIndentation = false;
+		// // }
+
+		// applyIndentation(line, indentationLevel + (childIndentation ? 1 : 0));
+
+		// if (macroInfo.container && macroInfo.start) {
+		// 	setIndentationLevel(1);
+		// }
+		// if (macroInfo.parents) {
+		// 	// console.log(macroInfo);
+
+		// 	setIndentationLevel(1);
+		// 	// childIndentation = true;
+		// }
 	}
 }

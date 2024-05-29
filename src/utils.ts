@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
-import { macro, macroDef, macroList } from "./sugarcube-2/macros";
+import { ChildDefObj, macro, macroDef, macroList } from "./sugarcube-2/macros";
+import { start } from "repl";
 
 export function headsplit(raw: string, regexp: RegExp, caps: number = 1) {
 	const text = raw.trim().split(/\r?\n/);
@@ -51,24 +52,19 @@ export function indentationConstructor(levels: number): string {
 	return arr.join("");
 }
 
-export type isMacroContainer = {
-	container: boolean;
-	startOfMacro: boolean;
+export type macroData = macroDef & {
+	start?: Boolean;
 };
-export function isMacroContainer(
+export function getMacroData(
 	text: string,
 	macroList: Record<string, macroDef>
-): isMacroContainer {
+): macroData {
 	// return new RegExp(IF_MACRO).test(text);
 	// const macros: any = await macroList();
 
 	const macroNameRegex = /<<\/?\s*(\w*)/gm.exec(text);
 	// console.log(macroNameRegex);
-	if (!macroNameRegex)
-		return {
-			container: false,
-			startOfMacro: false,
-		};
+	if (!macroNameRegex) return {};
 
 	const OPEN_MACRO_TOKEN: RegExp = /<<[^\/]/gm;
 	const CLOSED_MACRO_TOKEN: RegExp = /<<\//gm;
@@ -79,37 +75,48 @@ export function isMacroContainer(
 	// console.log(macroNameRegex);
 
 	const macroName = macroNameRegex[1];
-	const result: isMacroContainer = {
-		container: false,
-		startOfMacro: false,
-	};
 
 	// // console.log(macroName);
 	for (const key in macroList) {
 		if (Object.prototype.hasOwnProperty.call(macroList, key)) {
-			const macro: macroDef = macroList[key];
+			let macro: macroData = macroList[key];
 			if (macro.name == macroName) {
-				if (macro["container"]) {
-					if (OPEN_MACRO_TOKEN.test(macroNameRegex[0])) {
-						return {
-							container: macro["container"],
-							startOfMacro: true,
-						};
-					}
-					if (CLOSED_MACRO_TOKEN.test(macroNameRegex[0])) {
-						return {
-							container: macro["container"],
-							startOfMacro: false,
-						};
-					}
+				if (OPEN_MACRO_TOKEN.test(macroNameRegex[0])) {
+					macro["start"] = macro.parents ? false : true;
+					return macro;
+				}
+				if (CLOSED_MACRO_TOKEN.test(macroNameRegex[0])) {
+					macro["start"] = macro.parents ? true : false;
+					return macro;
 				}
 			}
 		}
 	}
-	return {
-		container: false,
-		startOfMacro: false,
-	};
+	return {};
+}
+export function isParent(macro: macroDef, list: macroDef[]): String | null {
+	// for (const childIndex in targetMacro["children"]) {
+	// 	const child: ChildDefObj = targetMacro["children"][childIndex];
+	// 	if (child.name == macro.name) {
+	// 		return true;
+	// 	}
+	// }
+	if (!macro.children || !macro.container) return null;
+
+	for (const i in list) {
+		const parentMacros: string[] | undefined = list[i]["parents"];
+		if (!parentMacros) return null;
+
+		for (const idx in parentMacros) {
+			const targetMacro: string = parentMacros[idx];
+			if (macro.name == targetMacro) {
+				return targetMacro;
+			}
+		}
+
+		// console.log(targetMacro);
+	}
+	return null;
 }
 
 export function inRange(number: number, min: number, max: number): boolean {

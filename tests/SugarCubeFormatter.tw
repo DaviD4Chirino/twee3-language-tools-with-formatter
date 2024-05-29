@@ -8,10 +8,9 @@
 :: Main
 
 /* This should be separated */
-::StuckPassage
+:: StuckPassage
 
 /* this should be deleted */
-::
 
 /*TODO */
 :: ThesePassagesShouldBeSeparated
@@ -20,50 +19,45 @@
 :: ThesePassagesShouldBeSeparated
 
 :: ThisShouldNot
-/* */
-/* There should not be space between the (<<) and (>>) with their closest text token */
-<<      if condition      >>
-
-                    <</    if>>
-
-/* if the end of a macro has anithing in the same line, it will be moved below */
-<<print >>This should be in a new line
-
-<<if condition>><</if>>
 
 
 
 /* Identation test, should look like this */
-the Identation work even with comments, idk how to fix it so
-
-/* 
-<<if condition>>
+/* <<if condition>>
+	<<cycle "_receiverName">>
+		<<optionsfrom collection>>
+	<</cycle>>
 	<<elseif condition>>
-	test
-	
-	<<print>>
-	
-	<<openCustomMacro>>
 		test
-	<</openCustomMacro>>
-	text
-<</if>>
-*/
+		
+	<<else>>
+		<<if condition>>
+			<<cycle "_receiverName">>
+				<<optionsfrom collection>>
+			<</cycle>>
+		<</if>>
+<</if>> */
 
 <<if condition>>
+<<cycle "_receiverName">>
+<<optionsfrom collection>>
+<</cycle>>
 <<elseif condition>>
 test
 
-<<print >>
-
-<<openCustomMacro>>
-test
-<</openCustomMacro>>
-text
+<<else>>
+<<if condition>>
+<<cycle "_receiverName">>
+<<optionsfrom collection>>
+<</cycle>>
+<</if>>
 <</if>>
 
 
+set testing
 
+<<set $thisShouldBeSeparated>>
+<<set _thisShouldBeSeparated>>
 
 
 

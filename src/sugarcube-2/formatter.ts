@@ -147,7 +147,7 @@ async function indentation(
 	document: vscode.TextDocument,
 	modifications: vscode.TextEdit[]
 ) {
-	const childIndenters = ["else", "elseif", "case", "default"];
+	const childIndenters = ["else", "elseif"];
 	const newMacroList = await macroList();
 
 	const numLines = document.lineCount;

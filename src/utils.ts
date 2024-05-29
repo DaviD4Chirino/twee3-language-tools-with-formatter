@@ -94,30 +94,6 @@ export function getMacroData(
 	}
 	return {};
 }
-export function isParent(macro: macroDef, list: macroDef[]): String | null {
-	// for (const childIndex in targetMacro["children"]) {
-	// 	const child: ChildDefObj = targetMacro["children"][childIndex];
-	// 	if (child.name == macro.name) {
-	// 		return true;
-	// 	}
-	// }
-	if (!macro.children || !macro.container) return null;
-
-	for (const i in list) {
-		const parentMacros: string[] | undefined = list[i]["parents"];
-		if (!parentMacros) return null;
-
-		for (const idx in parentMacros) {
-			const targetMacro: string = parentMacros[idx];
-			if (macro.name == targetMacro) {
-				return targetMacro;
-			}
-		}
-
-		// console.log(targetMacro);
-	}
-	return null;
-}
 
 export function inRange(number: number, min: number, max: number): boolean {
 	return number >= min && number <= max;

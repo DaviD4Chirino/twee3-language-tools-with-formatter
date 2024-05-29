@@ -1,15 +1,14 @@
 import * as vscode from "vscode";
 import {
-	inAnyRange,
 	indentationConstructor,
 	getMacroData,
 	macroData,
-	isParent,
+	inAnyRange,
 } from "../utils";
-import { macroDef, macroList } from "./macros";
-import { clamp } from "lodash";
+import { macroList } from "./macros";
+import { clamp, toNumber } from "lodash";
 
-type FullDocumentRules = {
+type Rules = {
 	[name: string]: {
 		regex: RegExp;
 		replacement: string;
@@ -17,7 +16,7 @@ type FullDocumentRules = {
 };
 
 /* the names are being read directly so... */
-const FULL_DOCUMENT_RULES: FullDocumentRules = {
+const FULL_DOCUMENT_RULES: Rules = {
 	NO_SPACE_BETWEEN_START_TOKEN_AND_PASSAGE_NAME: {
 		regex: /::(?=\S)/gm,
 		replacement: ":: ",
@@ -56,15 +55,35 @@ const FULL_DOCUMENT_RULES: FullDocumentRules = {
 	// 	replacement: ">><</",
 	// },
 
-	STICKY_SET: {
-		regex: /<<\s*set(?=[^a-zA-Z0-9 ])/gm,
-		replacement: "<<set ",
-	},
+	// STUCK_OPERATOR_END: {
+	// 	regex: /(=|\+=|-=|%=|\*=|\/=)(?=\S)/gm,
+	// 	replacement: "{[1]} ",
+	// },
 };
-/* A capture group of all the possible comments */
-const INSIDE_COMMENT: RegExp = /(\/\*([\s\S]*?)\*\/)|(\/%([\s\S]*?)%\/)|(<!--([\s\S]*?)-->)/gm;
 
-const SINGLE_LINE_MACROS: RegExp = />>(?=\S)/gm;
+/** you can use {[index]} in the replacement to reference a group of the regex, by number */
+const LINE_BY_LINE_RULES: Rules = {
+	CORRECTLY_FORMATTED_SET_UNSET: {
+		regex: /<<\s*(set|unset)\s*(\$\w*|_\w*)\s*(=|\+=|-=|%=|\*=|\/=)\s*(.*)>>/gm,
+		replacement: "<<{[1]} {[2]} {[3]} {[4]}>>",
+	},
+	CORRECT_UNSET_FORMATTING: {
+		regex: /<<\s*(set|unset)\s*(\$\w*|_\w*)\s*>>/gm,
+		replacement: "<<{[1]} {[2]}>>",
+	},
+	// STICKY_SET_UNSET: {
+	// 	regex: /<<\s*(set|unset)(?=[^a-zA-Z0-9 ])/gm,
+	// 	replacement: "<<{[1]} ",
+	// },
+};
+
+const replacementParserGroupRegexp: RegExp = /{\[(\d)\]}/m;
+// const macroInfoRegexp: RegExp = /<<\s*(?<name>unset|set)\s*(?<variable>\$\w*|_\w*)\s*(?<assignment>=|\+=|-=|%=|\*=|\/=)\s*(?<value>.*)>>/gm;
+
+/* A capture group of all the possible comments */
+// const INSIDE_COMMENT: RegExp = /(\/\*([\s\S]*?)\*\/)|(\/%([\s\S]*?)%\/)|(<!--([\s\S]*?)-->)/gm;
+
+// const SINGLE_LINE_MACROS: RegExp = />>(?=\S)/gm;
 
 /** Index[0] is the start of the pattern, [1] is the last position */
 
@@ -81,32 +100,33 @@ export async function formatter() {
 
 			const modifications: vscode.TextEdit[] = [];
 
-			var insideComment: RegExpMatchArray | null = fullText.match(
-				INSIDE_COMMENT
-			);
-			let ranges: [[number, number]] = [[0, 0]];
+			// var insideComment: RegExpMatchArray | null = fullText.match(
+			// 	INSIDE_COMMENT
+			// );
+			// let ranges: [[number, number]] = [[0, 0]];
 
-			if (insideComment) {
-				/** I have no idea what is happening here, but oh well */
-				while ((insideComment = INSIDE_COMMENT.exec(fullText))) {
-					ranges.push([
-						insideComment.index as number,
-						INSIDE_COMMENT.lastIndex,
-					]);
-				}
-			}
-			await indentation(document, modifications, ranges);
+			// if (insideComment) {
+			// 	/** I have no idea what is happening here, but oh well */
+			// 	while ((insideComment = INSIDE_COMMENT.exec(fullText))) {
+			// 		ranges.push([
+			// 			insideComment.index as number,
+			// 			INSIDE_COMMENT.lastIndex,
+			// 		]);
+			// 	}
+			// }
+			await indentation(document, modifications);
 
 			mainLoop: for (const rule in FULL_DOCUMENT_RULES) {
 				if (Object.prototype.hasOwnProperty.call(FULL_DOCUMENT_RULES, rule)) {
 					const currentRule = FULL_DOCUMENT_RULES[rule];
-					const currentExec = currentRule.regex.exec(fullText);
+					const exec = currentRule.regex.exec(fullText);
 
-					if (currentExec) {
-						if (inAnyRange(currentExec.index, ranges)) {
-							console.log(rule + " is inside comment");
-							continue mainLoop;
-						}
+					if (exec) {
+						// if (inAnyRange(exec.index, ranges)) {
+						// 	// console.log(rule + " is inside comment");
+						// 	continue mainLoop;
+						// }
+
 						modifications.push(
 							vscode.TextEdit.replace(
 								fullDocumentRange,
@@ -116,22 +136,21 @@ export async function formatter() {
 					}
 				}
 			}
+
+			lineByLine(document, modifications);
 			return modifications;
 		},
 	});
 }
 
-export async function indentation(
+async function indentation(
 	document: vscode.TextDocument,
-	modifications: vscode.TextEdit[],
-	ranges: [[number, number]]
+	modifications: vscode.TextEdit[]
 ) {
-	const childIndenters = ["else", "elseif", "case"];
+	const childIndenters = ["else", "elseif", "case", "default"];
 	const newMacroList = await macroList();
-	console.log(newMacroList);
 
 	const numLines = document.lineCount;
-	const fullText: string = document.getText();
 	let indentationLevel = 0;
 	let childIndentation: Boolean = false;
 
@@ -145,8 +164,6 @@ export async function indentation(
 	}
 	for (let i = 0; i < numLines; i++) {
 		const line: vscode.TextLine = document.lineAt(i);
-
-		// console.log(fullText.indexOf(line.text));
 
 		//*remove any indentation
 		modifications.push(vscode.TextEdit.replace(line.range, line.text.trim()));
@@ -164,8 +181,6 @@ export async function indentation(
 		// }
 
 		const macroInfo: macroData = getMacroData(line.text, newMacroList);
-
-		// if (macroInfo.start) console.log(macroInfo);
 
 		if (macroInfo.container && !macroInfo.start) {
 			setIndentationLevel(-1);
@@ -185,29 +200,48 @@ export async function indentation(
 		if (macroInfo.parents && childIndenters.includes(macroInfo.name || "")) {
 			childIndentation = true;
 		}
+	}
+}
 
-		// if ((macroInfo.container && !macroInfo.start) || macroInfo.parents) {
-		// 	setIndentationLevel(-1);
-		// }
+function lineByLine(
+	document: vscode.TextDocument,
+	modifications: vscode.TextEdit[]
+) {
+	const numLines = document.lineCount;
+	for (let i = 0; i < numLines; i++) {
+		const line: vscode.TextLine = document.lineAt(i);
 
-		// // if (
-		// // 	macroInfo.parents ||
-		// // 	indentationLevel <= 1 ||
-		// // 	(macroInfo.container && macroInfo.children && !macroInfo.start)
-		// // ) {
-		// // 	childIndentation = false;
-		// // }
+		for (const rule in LINE_BY_LINE_RULES) {
+			if (Object.prototype.hasOwnProperty.call(LINE_BY_LINE_RULES, rule)) {
+				const currentRule: {
+					regex: RegExp;
+					replacement: string;
+				} = LINE_BY_LINE_RULES[rule];
+				const exec: RegExpExecArray | null = currentRule.regex.exec(line.text);
 
-		// applyIndentation(line, indentationLevel + (childIndentation ? 1 : 0));
+				let replacement: string = currentRule.replacement;
+				const replacementExec: RegExpExecArray | null = replacementParserGroupRegexp.exec(
+					replacement
+				);
+				let matches: string[] | null = [];
+				console.log(replacement);
 
-		// if (macroInfo.container && macroInfo.start) {
-		// 	setIndentationLevel(1);
-		// }
-		// if (macroInfo.parents) {
-		// 	// console.log(macroInfo);
+				if (replacementExec && exec) {
+					while ((matches = replacement.match(replacementParserGroupRegexp))) {
+						replacement = replacement.replace(
+							replacementParserGroupRegexp,
+							`${exec[toNumber(matches[1])]}`
+						);
+					}
 
-		// 	setIndentationLevel(1);
-		// 	// childIndentation = true;
-		// }
+					modifications.push(
+						vscode.TextEdit.replace(
+							line.range,
+							line.text.replace(currentRule.regex, replacement)
+						)
+					);
+				}
+			}
+		}
 	}
 }

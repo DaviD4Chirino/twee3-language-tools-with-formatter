@@ -27,6 +27,7 @@
 		"vscode": "^1.67.0",
 		"node": "^16"
 	},
+	
 	"categories": [
 		"Language Packs",
 		"Extension Packs",

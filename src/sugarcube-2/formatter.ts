@@ -213,18 +213,14 @@ function lineByLine(
 
 		for (const rule in LINE_BY_LINE_RULES) {
 			if (Object.prototype.hasOwnProperty.call(LINE_BY_LINE_RULES, rule)) {
-				const currentRule: {
-					regex: RegExp;
-					replacement: string;
-				} = LINE_BY_LINE_RULES[rule];
-				const exec: RegExpExecArray | null = currentRule.regex.exec(line.text);
-
+				const currentRule = LINE_BY_LINE_RULES[rule];
 				let replacement: string = currentRule.replacement;
+
+				const exec: RegExpExecArray | null = currentRule.regex.exec(line.text);
 				const replacementExec: RegExpExecArray | null = replacementParserGroupRegexp.exec(
 					replacement
 				);
 				let matches: string[] | null = [];
-				console.log(replacement);
 
 				if (replacementExec && exec) {
 					while ((matches = replacement.match(replacementParserGroupRegexp))) {

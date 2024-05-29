@@ -42,6 +42,9 @@ export function tabstring() {
 }
 
 export function indentationConstructor(levels: number): string {
+	// const editorConfig = vscode.workspace.getConfiguration("editor");
+	// console.log(editorConfig.get("tabSize"));
+	// console.log(editorConfig.get("insertSpaces"));
 	if (levels < 0) {
 		return "";
 	}
@@ -59,24 +62,14 @@ export function getMacroData(
 	text: string,
 	macroList: Record<string, macroDef>
 ): macroData {
-	// return new RegExp(IF_MACRO).test(text);
-	// const macros: any = await macroList();
-
 	const macroNameRegex = /<<\/?\s*(\w*)/gm.exec(text);
-	// console.log(macroNameRegex);
 	if (!macroNameRegex) return {};
 
 	const OPEN_MACRO_TOKEN: RegExp = /<<[^\/]/gm;
 	const CLOSED_MACRO_TOKEN: RegExp = /<<\//gm;
-	// if (OPEN_MACRO_TOKEN.test(text)) {
-	// 	console.log("is the start of the macro");
-	// 	return true;
-	// }
-	// console.log(macroNameRegex);
 
 	const macroName = macroNameRegex[1];
 
-	// // console.log(macroName);
 	for (const key in macroList) {
 		if (Object.prototype.hasOwnProperty.call(macroList, key)) {
 			let macro: macroData = macroList[key];

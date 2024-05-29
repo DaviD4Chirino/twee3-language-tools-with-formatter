@@ -1,4 +1,12 @@
-# Twee 3 Language Tools
+# Twee 3 Language Tools With Formatter
+
+This is a fork of [Twee 3 Language Tools](https://github.com/cyrusfirheir/twee3-language-tools) that includes a SugarCube2 formatter. Everything is the same.
+
+## Know issues
+
+It only formats Sugarcube2, it does not format html or javascript (yet)
+
+## Original README
 
 Syntax highlighting for HTML and select storyformats (see [Features](#features)) on top of Twee 3 code.
 

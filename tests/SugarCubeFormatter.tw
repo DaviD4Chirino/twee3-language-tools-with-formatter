@@ -83,6 +83,12 @@ all of the below should look like this:
 <<set_counter-= 1>>
 <<unset _counter-= 1>>
 <<set _counter%=1>>
+<<="asdasd"                                >>
+<div>
+<div>
+asdasdasd
+</div>
+</div>
 
 
 <<script>>

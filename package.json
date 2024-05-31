@@ -8,12 +8,12 @@
 		"webpack-dev": "webpack --mode development --watch",
 		"clean": "rimraf out"
 	},
-	"name": "twee3-language-tools-with-formatter",
-	"displayName": "Twee 3 Language Tools With Formatter",
-	"description": "Syntax highlighting, formatting and programmatic language tools for Twee 3.",
-	"version": "0.0.1",
+	"name": "twee3-language-tools",
+	"displayName": "Twee 3 Language Tools",
+	"description": "Syntax highlighting and programmatic language tools for Twee 3.",
+	"version": "0.25.3",
 	"author": "Cyrus Firheir",
-	"publisher": "DaviD4C",
+	"publisher": "cyrusfirheir",
 	"icon": "res/icon.png",
 	"repository": {
 		"type": "git",

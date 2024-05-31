@@ -4,9 +4,16 @@ import {
 	getMacroData,
 	macroData,
 	inAnyRange,
+	parseReplacementString,
 } from "../utils";
-import { macroList } from "./macros";
-import { clamp, toNumber } from "lodash";
+import {
+	MacroRegexType,
+	macroList,
+	macroNamePattern,
+	macroRegex,
+	macroRegexFactory,
+} from "./macros";
+import { clamp } from "lodash";
 
 type Rules = {
 	[name: string]: {
@@ -62,6 +69,7 @@ const FULL_DOCUMENT_RULES: Rules = {
 };
 
 /** you can use {[index]} in the replacement to reference a group of the regex, by number */
+// TODO: make it so it doest match when the string is correctly formatted
 const LINE_BY_LINE_RULES: Rules = {
 	CORRECTLY_FORMATTED_SET_UNSET: {
 		regex: /<<\s*(set|unset)\s*(\$\w*|_\w*)\s*(=|\+=|-=|%=|\*=|\/=)\s*(.*)>>/gm,
@@ -71,13 +79,25 @@ const LINE_BY_LINE_RULES: Rules = {
 		regex: /<<\s*(set|unset)\s*(\$\w*|_\w*)\s*>>/gm,
 		replacement: "<<{[1]} {[2]}>>",
 	},
+	CORRECT_PRINT_FORMATTING: {
+		regex: /<<\s*(print|=|-)\s*(.*)\s*>>/gm,
+		replacement: "<<{[1]}({[2]}? {[2]}:)>>",
+	},
+	// CORRECT_PRINT_MACROS: {
+	// 	regex: /<<(print|=|-)\s*(.*)>>/gm,
+	// 	replacement: "<<{[1]}({[2]}? {[2]}:)>>",
+	// },
+	// CORRECT_MACRO_FORMAT: {
+	// 	regex: macroRegexFactory(macroNamePattern, MacroRegexType.Start),
+	// 	replacement: "<<{[1]}({[2]}? {[2]}:)>>",
+	// },
+
 	// STICKY_SET_UNSET: {
 	// 	regex: /<<\s*(set|unset)(?=[^a-zA-Z0-9 ])/gm,
 	// 	replacement: "<<{[1]} ",
 	// },
 };
 
-const replacementParserGroupRegexp: RegExp = /{\[(\d)\]}/m;
 // const macroInfoRegexp: RegExp = /<<\s*(?<name>unset|set)\s*(?<variable>\$\w*|_\w*)\s*(?<assignment>=|\+=|-=|%=|\*=|\/=)\s*(?<value>.*)>>/gm;
 
 /* A capture group of all the possible comments */
@@ -215,20 +235,12 @@ function lineByLine(
 			if (Object.prototype.hasOwnProperty.call(LINE_BY_LINE_RULES, rule)) {
 				const currentRule = LINE_BY_LINE_RULES[rule];
 				let replacement: string = currentRule.replacement;
-
 				const exec: RegExpExecArray | null = currentRule.regex.exec(line.text);
-				const replacementExec: RegExpExecArray | null = replacementParserGroupRegexp.exec(
-					replacement
-				);
-				let matches: string[] | null = [];
 
-				if (replacementExec && exec) {
-					while ((matches = replacement.match(replacementParserGroupRegexp))) {
-						replacement = replacement.replace(
-							replacementParserGroupRegexp,
-							`${exec[toNumber(matches[1])]}`
-						);
-					}
+				console.log(exec);
+
+				if (exec) {
+					replacement = parseReplacementString(currentRule.replacement, exec);
 
 					modifications.push(
 						vscode.TextEdit.replace(
@@ -241,3 +253,5 @@ function lineByLine(
 		}
 	}
 }
+
+function handleLineByLineRules(line: vscode.TextLine) {}

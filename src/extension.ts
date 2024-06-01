@@ -44,7 +44,7 @@ import { tabstring } from "./utils";
 
 import { activateFolding } from "./folding";
 
-import { formatter } from "./sugarcube-2/formatter";
+import { formatter } from "./sugarcube-2/formatting/formatter";
 
 //#endregion
 

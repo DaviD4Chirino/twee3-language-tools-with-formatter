@@ -6,6 +6,7 @@ import {
 	breakDownObject,
 	isHtmlTagOpen,
 	isHtmlTag,
+	isHtmlTagSingleLine,
 } from "../../utils";
 import { macroList } from "../macros";
 import { clamp } from "lodash";
@@ -42,6 +43,8 @@ export async function indentation(
 			indentationLevel + (childIndentation ? 1 : 0);
 		const isHtml: Boolean = isHtmlTag(line.text);
 		const isHtmlOpen: Boolean = isHtmlTagOpen(line.text);
+
+		const isHtmlSingleLine: Boolean = isHtmlTagSingleLine(line.text);
 
 		//*remove any indentationconst isHtml: Boolean = isHtmlTag(line.text);
 		modifications.push(vscode.TextEdit.replace(line.range, line.text.trim()));
@@ -128,7 +131,7 @@ export async function indentation(
 		if (
 			(macroInfo.container && macroInfo.start) ||
 			(START_OBJECT_ARRAY_REGEX.test(line.text) && !isObjectArraySingleLine) ||
-			(isHtml && isHtmlOpen)
+			(isHtml && isHtmlOpen && !isHtmlSingleLine)
 		) {
 			setIndentationLevel(1);
 		}

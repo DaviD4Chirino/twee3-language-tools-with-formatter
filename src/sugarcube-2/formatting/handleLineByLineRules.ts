@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { parseReplacementString } from "../../utils";
+import { MacroRegexType, macroNamePattern, macroRegexFactory } from "../macros";
 export type Rules = {
 	[name: string]: {
 		regex: RegExp;
@@ -18,19 +19,27 @@ export const LINE_BY_LINE_RULES: Rules = {
 		regex: /<<\s*(set|unset)\s*(\$\w*|_\w*)\s*(=|\+=|-=|%=|\*=|\/=)\s*(.*)>>/gm,
 		replacement: "<<{[1]} {[2]} {[3]} {[4]}>>",
 	},
-	CORRECT_UNSET_FORMATTING: {
+	FORMAT_UNASSIGNED_SET_UNSET: {
 		regex: /<<\s*(set|unset)\s*(\$\w*|_\w*)\s*>>/gm,
 		replacement: "<<{[1]} {[2]}>>",
 	},
-	CORRECT_PRINT_FORMATTING: {
-		regex: /<<\s*(print|=|-)\s*(.*)\s*>>/gm,
-		replacement: "<<{[1]}({[2]}? {[2]}:)>>",
-	},
+	// SYMBOL_FORMAT_STUCK_START: {
+	// 	regex: /(=|\+=|-=|%=|\*=|\/=)(?=[\S])/gm,
+	// 	replacement: "{[1]} ",
+	// },
+	// CORRECT_UNSET_FORMATTING: {
+	// 	regex: /<<\s*(set|unset)\s*(\$\w*|_\w*)\s*>>/gm,
+	// 	replacement: "<<{[1]} {[2]}>>",
+	// },
+	// CORRECT_PRINT_FORMATTING: {
+	// 	regex: /<<\s*(print|=|-)\s*(.*)\s*>>/gm,
+	// 	replacement: "<<{[1]}({[2]}? {[2]}:)>>",
+	// },
 	// CORRECT_PRINT_MACROS: {
 	// 	regex: /<<(print|=|-)\s*(.*)>>/gm,
 	// 	replacement: "<<{[1]}({[2]}? {[2]}:)>>",
 	// },
-	// CORRECT_MACRO_FORMAT: {
+	// CORRECT_MACRO_FORMAT_START: {
 	// 	regex: macroRegexFactory(macroNamePattern, MacroRegexType.Start),
 	// 	replacement: "<<{[1]}({[2]}? {[2]}:)>>",
 	// },

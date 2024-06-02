@@ -6,7 +6,8 @@ import {
 	macroRegex,
 	macroRegexFactory,
 } from "./sugarcube-2/macros";
-const TAG_REGEX: RegExp = /((?<macroTag><<)|(?<htmlStart><))(?<closed>\/)?([a-zA-z "=+*]*)((?<macroEnd>>>)|(?<htmlEnd>>))/m;
+const TAG_REGEX: RegExp = /((?<macroTag><<)|(?<htmlStart><))(?<closed>\/)?\s*(?<name>[\w]*)(?<arguments>[\s\w "=]*)?((?<macroEnd>>>)|(?<htmlEnd>>))/m;
+const s = /((?<macroTag><<)|(?<htmlStart><))(?<closed>\/)?\s*(?<name>[\w]*)(?<arguments>[\s\w "=]*)?((?<macroEnd>>>)|(?<htmlEnd>>))/gm;
 
 export type macroData = macroDef & {
 	start?: Boolean;
@@ -109,6 +110,7 @@ export type htmlTagData = {
 export function isHtmlTag(text: string): Boolean {
 	if (!TAG_REGEX.test(text)) return false;
 	const exec: RegExpExecArray = TAG_REGEX.exec(text) as RegExpExecArray;
+	// console.log(exec);
 
 	if (exec.groups?.htmlStart && exec.groups?.htmlEnd) {
 		return true;
@@ -119,12 +121,39 @@ export function isHtmlTag(text: string): Boolean {
 
 export function isHtmlTagOpen(text: string): Boolean {
 	const exec: RegExpExecArray | null = TAG_REGEX.exec(text);
+
 	if (exec) {
 		return exec.groups?.closed ? false : true;
 	}
 	return false;
 
 	// console.log();
+}
+
+export function isHtmlTagSingleLine(text: string): Boolean {
+	if (!TAG_REGEX.test(text)) return false;
+	const exec: RegExpExecArray = TAG_REGEX.exec(text) as RegExpExecArray;
+	const htmlOpenTags: string[] = [
+		"area",
+		"base",
+		"br",
+		"col",
+		"embed",
+		"hr",
+		"img",
+		"input",
+		"link",
+		"meta",
+		"param",
+		"source",
+		"track",
+		"wbr",
+	];
+
+	if (htmlOpenTags.includes(exec.groups?.name || "")) {
+		return true;
+	}
+	return false;
 }
 
 export function inRange(number: number, min: number, max: number): boolean {
@@ -199,8 +228,7 @@ export function breakDownObject(
 	let result: string = text;
 
 	if (exec) {
-		const level: string = indentationConstructor(indentationLevel);
-
+		if (!exec[1] && !exec[2]) return result;
 		/** Splits either an object or an array, both have the same procedure */
 		let elements: string[] = exec[1] ? exec[1].split(",") : exec[2].split(",");
 
@@ -214,6 +242,8 @@ export function breakDownObject(
 					elements.join(`,\n${indentationConstructor(indentationLevel + 1)}`) +
 					`\n${indentationConstructor(indentationLevel)}`
 			);
+		} else {
+			result = text.replace(exec[1] ? exec[1] : exec[2], elements.join(", "));
 		}
 	}
 

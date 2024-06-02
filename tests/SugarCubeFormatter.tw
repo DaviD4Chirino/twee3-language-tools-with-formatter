@@ -89,9 +89,11 @@ all of the below should look like this:
 <<="asdasd"                                >>
 
 <div id="Something" class="AnyClass">
+<img src="" alt="">
 <<if condition>>
 /* breaks down */
 <<set$chestEmpty ={"one":true,"two":true,"three":false}>>
+<<set$chestEmpty ={}>>
 <<set $cheese= ["one","two","three", false, true]>> 
 /* does not breaks down */
 <<set$chestEmpty={"one":true,"two":true}>>

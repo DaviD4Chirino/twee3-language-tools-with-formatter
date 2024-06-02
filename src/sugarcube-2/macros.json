@@ -87,14 +87,16 @@
 		"parents": [
 			"if"
 		],
-		"skipArgs": true
+		"skipArgs": true,
+		"indenter":true
 	},
 	"elseif": {
 		"name": "elseif",
 		"parents": [
 			"if"
 		],
-		"skipArgs": true
+		"skipArgs": true,
+		"indenter":true
 	},
 	"for": {
 		"name": "for",

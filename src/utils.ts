@@ -67,38 +67,42 @@ export function indentationConstructor(levels: number): string {
 }
 
 export function getMacroData(
-	text: string,
+	name: string,
 	macroList: Record<string, macroDef>
 ): macroData {
 	// console.log(
 	// 	macroRegexFactory(macroNamePattern, MacroRegexType.Start).exec(text)
 	// );
 
-	const macroNameRegex = /<<?\/?\s*(\w*)/gm.exec(text);
-	if (!macroNameRegex) {
-		return {};
+	// const macroNameRegex = /<<?\/?\s*(\w*)/gm.exec(name);
+	// if (!macroNameRegex) {
+	// 	return {};
+	// }
+
+	// const OPEN_MACRO_TOKEN: RegExp = /<<[^\/]/gm;
+	// const CLOSED_MACRO_TOKEN: RegExp = /<<\//gm;
+
+	// const macroName = macroNameRegex[1];
+
+	if (macroList[name]) {
+		let macro: macroData = macroList[name];
+		return macro;
 	}
+	// for (const key in macroList) {
+	// 	if (Object.prototype.hasOwnProperty.call(macroList, key)) {
+	// 		let macro: macroData = macroList[key];
+	// 		if (macro.name != macroName) continue;
 
-	const OPEN_MACRO_TOKEN: RegExp = /<<[^\/]/gm;
-	const CLOSED_MACRO_TOKEN: RegExp = /<<\//gm;
-
-	const macroName = macroNameRegex[1];
-
-	for (const key in macroList) {
-		if (Object.prototype.hasOwnProperty.call(macroList, key)) {
-			let macro: macroData = macroList[key];
-			if (macro.name != macroName) continue;
-
-			if (OPEN_MACRO_TOKEN.test(macroNameRegex[0])) {
-				macro["start"] = macro.parents ? false : true;
-				return macro;
-			}
-			if (CLOSED_MACRO_TOKEN.test(macroNameRegex[0])) {
-				macro["start"] = macro.parents ? true : false;
-				return macro;
-			}
-		}
-	}
+	// 		if (OPEN_MACRO_TOKEN.test(macroNameRegex[0])) {
+	// 			macro["start"] = macro.parents ? false : true;
+	// 			return macro;
+	// 		}
+	// 		if (CLOSED_MACRO_TOKEN.test(macroNameRegex[0])) {
+	// 			macro["start"] = macro.parents ? true : false;
+	// 			return macro;
+	// 		}
+	// 	}
+	// }
 
 	return {};
 }
@@ -244,6 +248,14 @@ export function breakDownObject(
 			);
 		} else {
 			result = text.replace(exec[1] ? exec[1] : exec[2], elements.join(", "));
+		}
+		const STUCK_PERIODS: RegExp = /\s*?:(\s{2,}|(?=\S))/gm;
+		if (STUCK_PERIODS.test(result)) {
+			// const stuckExec: RegExpExecArray = STUCK_PERIODS.exec(
+			// 	result
+			// ) as RegExpExecArray;
+
+			result = result.replace(STUCK_PERIODS, ": ");
 		}
 	}
 

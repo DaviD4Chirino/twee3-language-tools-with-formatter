@@ -8,7 +8,7 @@ import {
 	isHtmlTag,
 	isHtmlTagSingleLine,
 } from "../../utils";
-import { macroList } from "../macros";
+import { macroList, macroRegex } from "../macros";
 import { clamp } from "lodash";
 
 const SINGLE_LINE_HTML_TAG: RegExp = />(.*)(?=<\/)/m;
@@ -21,8 +21,8 @@ export async function indentation(
 	const SINGLE_LINE_OBJECT_ARRAY_REGEX: RegExp = /{.*}|\[.*\]/m;
 	const START_OBJECT_ARRAY_REGEX: RegExp = /{|\[/m;
 	const END_OBJECT_ARRAY_REGEX: RegExp = /}|\]/m;
-
-	const childIndenters = ["else", "elseif"];
+	/** I need a way to differentiate between an else, a macro that should wrap itself and a print, a macro that should not wrap itself */
+	const childIndenters = ["else", "elseif", "default", "case"];
 	const newMacroList = await macroList();
 
 	const numLines = document.lineCount;
@@ -34,19 +34,22 @@ export async function indentation(
 	}
 	function applyIndentation(line: vscode.TextLine, level: number) {
 		modifications.push(
-			vscode.TextEdit.insert(line.range.start, indentationConstructor(level))
+			vscode.TextEdit.insert(
+				line.range.start,
+				indentationConstructor(level) + level
+			)
 		);
 	}
 	for (let i = 0; i < numLines; i++) {
 		const line: vscode.TextLine = document.lineAt(i);
-		const targetIndentationLevel =
-			indentationLevel + (childIndentation ? 1 : 0);
+		let targetIndentationLevel = indentationLevel + (childIndentation ? 1 : 0);
+
 		const isHtml: Boolean = isHtmlTag(line.text);
 		const isHtmlOpen: Boolean = isHtmlTagOpen(line.text);
 
 		const isHtmlSingleLine: Boolean = isHtmlTagSingleLine(line.text);
 
-		//*remove any indentationconst isHtml: Boolean = isHtmlTag(line.text);
+		//*remove any indentation const isHtml: Boolean = isHtmlTag(line.text);
 		modifications.push(vscode.TextEdit.replace(line.range, line.text.trim()));
 
 		// do it here to fix a bug where sometimes it messes indentation
@@ -93,14 +96,18 @@ export async function indentation(
 				continue;
 			}
 		}
-		const macroInfo: macroData = getMacroData(line.text, newMacroList);
+		const macroExec = macroRegex.exec(line.text);
+		let macroInfo = newMacroList[macroExec?.groups?.macroName || ""];
+
+		// console.log(macroInfo);
+		// console.log(macroExec);
 
 		const isObjectArraySingleLine: Boolean = SINGLE_LINE_OBJECT_ARRAY_REGEX.test(
 			line.text
 		);
 
 		if (isObjectArraySingleLine) {
-			// console.log(line.text);
+			// console.log(macroInfo.name);
 
 			modifications.push(
 				vscode.TextEdit.replace(
@@ -111,32 +118,35 @@ export async function indentation(
 		}
 
 		if (
-			(macroInfo.container && !macroInfo.start) ||
+			(macroInfo?.container && macroExec?.groups?.macroEnd) ||
 			(END_OBJECT_ARRAY_REGEX.test(line.text) && !isObjectArraySingleLine) ||
-			(isHtml && !isHtmlOpen)
+			(isHtml && !isHtmlOpen && !isHtmlSingleLine)
 		) {
 			setIndentationLevel(-1);
 		}
 		// if is a child macro and is a permitted macro, it will unindent,
 		// Also when the level is 0, because if theres no more indentation  we can safely assume is the end
-		if (
-			(macroInfo.parents && childIndenters.includes(macroInfo.name || "")) ||
-			(childIndentation && indentationLevel == 0)
-		) {
+		if (macroInfo?.indenter || indentationLevel == 0) {
 			childIndentation = false;
+			// console.log(macroInfo?.name);
 		}
 
-		applyIndentation(line, indentationLevel);
+		// if (macroInfo?.parents) {
+		// 	console.log(`${macroInfo?.name} - ${line.text}`);
+		// }
+		applyIndentation(line, indentationLevel + (childIndentation ? 1 : 0));
 
 		if (
-			(macroInfo.container && macroInfo.start) ||
+			(macroInfo?.container && !macroExec?.groups?.macroEnd) ||
 			(START_OBJECT_ARRAY_REGEX.test(line.text) && !isObjectArraySingleLine) ||
 			(isHtml && isHtmlOpen && !isHtmlSingleLine)
 		) {
 			setIndentationLevel(1);
 		}
-		if (macroInfo.parents && childIndenters.includes(macroInfo.name || "")) {
+
+		if (macroInfo?.indenter) {
 			childIndentation = true;
+			// console.log(macroInfo.name);
 		}
 	}
 
@@ -144,8 +154,3 @@ export async function indentation(
 	// 	source: "vscode.html-language-features",
 	// });
 }
-
-function javaScriptIndentation(
-	document: vscode.TextDocument,
-	modifications: vscode.TextEdit[]
-) {}

@@ -44,6 +44,7 @@ export interface macroDef {
 	container?: boolean;
 	selfClose?: boolean;
 	children?: ChildDefObj[];
+	indenter?: boolean;
 	parents?: string[];
 	deprecated?: boolean;
 	deprecatedSuggestions?: string[];

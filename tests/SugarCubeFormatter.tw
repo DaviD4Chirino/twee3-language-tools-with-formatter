@@ -99,6 +99,16 @@ all of the below should look like this:
 <<set$chestEmpty={"one":true,"two":true}>>
 <<set $cheese=["one","two"]>> 
 <</if>>
+
+<<switch expression>>
+<<case valueList>>
+content
+<<case valueList>>
+	content
+<<default>>
+	content
+<</switch>>
+
 asdasdasd
 </div>
 

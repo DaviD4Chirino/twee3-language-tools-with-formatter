@@ -50,7 +50,7 @@ export function handleLineByLineRules(
 			let replacement: string = currentRule.replacement;
 			const exec: RegExpExecArray | null = currentRule.regex.exec(line.text);
 
-			console.log(exec);
+			// console.log(exec);
 
 			if (exec) {
 				replacement = parseReplacementString(currentRule.replacement, exec);

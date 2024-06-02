@@ -1,13 +1,26 @@
 import * as vscode from "vscode";
-import { indentationConstructor, getMacroData, macroData } from "../../utils";
+import {
+	indentationConstructor,
+	getMacroData,
+	macroData,
+	breakDownObject,
+	isHtmlTagOpen,
+	isHtmlTag,
+} from "../../utils";
 import { macroList } from "../macros";
 import { clamp } from "lodash";
+
+const SINGLE_LINE_HTML_TAG: RegExp = />(.*)(?=<\/)/m;
+const SINGLE_LINE_MACRO: RegExp = />>(.*)(?=<<\/)/m;
 
 export async function indentation(
 	document: vscode.TextDocument,
 	modifications: vscode.TextEdit[]
 ) {
-	const SINGLE_LINE_OBJECT_ARRAY_REGEX: RegExp = /{.*}|\[.*\]/gm;
+	const SINGLE_LINE_OBJECT_ARRAY_REGEX: RegExp = /{.*}|\[.*\]/m;
+	const START_OBJECT_ARRAY_REGEX: RegExp = /{|\[/m;
+	const END_OBJECT_ARRAY_REGEX: RegExp = /}|\]/m;
+
 	const childIndenters = ["else", "elseif"];
 	const newMacroList = await macroList();
 
@@ -25,30 +38,79 @@ export async function indentation(
 	}
 	for (let i = 0; i < numLines; i++) {
 		const line: vscode.TextLine = document.lineAt(i);
+		const targetIndentationLevel =
+			indentationLevel + (childIndentation ? 1 : 0);
+		const isHtml: Boolean = isHtmlTag(line.text);
+		const isHtmlOpen: Boolean = isHtmlTagOpen(line.text);
 
-		//*remove any indentation
+		//*remove any indentationconst isHtml: Boolean = isHtmlTag(line.text);
 		modifications.push(vscode.TextEdit.replace(line.range, line.text.trim()));
 
 		// do it here to fix a bug where sometimes it messes indentation
-		// if (SINGLE_LINE_MACROS.test(line.text)) {
-		// 	modifications.push(
-		// 		vscode.TextEdit.replace(
-		// 			line.range,
-		// 			line.text.replace(SINGLE_LINE_MACROS, ">>\n")
-		// 		)
-		// 	);
-		// 	applyIndentation(line, indentationLevel);
-		// 	continue;
-		// }
+		if (SINGLE_LINE_MACRO.test(line.text)) {
+			const exec: RegExpExecArray | null = SINGLE_LINE_MACRO.exec(line.text);
+			if (exec) {
+				modifications.push(
+					vscode.TextEdit.replace(
+						line.range,
+						line.text.replace(
+							exec[0],
+							`>>\n${indentationConstructor(
+								targetIndentationLevel + 1
+							)}${exec[1] || ""}\n${indentationConstructor(
+								targetIndentationLevel
+							)}`
+						)
+					)
+				);
+				applyIndentation(line, targetIndentationLevel);
+				continue;
+			}
+			applyIndentation(line, targetIndentationLevel);
+			continue;
+		}
+
+		if (isHtml) {
+			const exec: RegExpExecArray | null = SINGLE_LINE_HTML_TAG.exec(line.text);
+			if (exec) {
+				modifications.push(
+					vscode.TextEdit.replace(
+						line.range,
+						line.text.replace(
+							exec[0],
+							`>\n${indentationConstructor(
+								targetIndentationLevel + 1
+							)}${exec[1] || ""}\n${indentationConstructor(
+								targetIndentationLevel
+							)}`
+						)
+					)
+				);
+				applyIndentation(line, targetIndentationLevel);
+				continue;
+			}
+		}
 		const macroInfo: macroData = getMacroData(line.text, newMacroList);
 
 		const isObjectArraySingleLine: Boolean = SINGLE_LINE_OBJECT_ARRAY_REGEX.test(
 			line.text
 		);
 
+		if (isObjectArraySingleLine) {
+			// console.log(line.text);
+
+			modifications.push(
+				vscode.TextEdit.replace(
+					line.range,
+					breakDownObject(line.text, targetIndentationLevel)
+				)
+			);
+		}
+
 		if (
 			(macroInfo.container && !macroInfo.start) ||
-			(line.text.includes("}") && !isObjectArraySingleLine)
+			(END_OBJECT_ARRAY_REGEX.test(line.text) && !isObjectArraySingleLine) ||
+			(isHtml && !isHtmlOpen)
 		) {
 			setIndentationLevel(-1);
 		}
@@ -61,11 +123,12 @@ export async function indentation(
 			childIndentation = false;
 		}
 
-		applyIndentation(line, indentationLevel + (childIndentation ? 1 : 0));
+		applyIndentation(line, indentationLevel);
 
 		if (
 			(macroInfo.container && macroInfo.start) ||
-			(line.text.includes("{") && !isObjectArraySingleLine)
+			(START_OBJECT_ARRAY_REGEX.test(line.text) && !isObjectArraySingleLine) ||
+			(isHtml && isHtmlOpen)
 		) {
 			setIndentationLevel(1);
 		}
@@ -73,4 +136,13 @@ export async function indentation(
 			childIndentation = true;
 		}
 	}
+
+	// vscode.commands.executeCommand("editor.action.formatDocument", {
+	// 	source: "vscode.html-language-features",
+	// });
 }
+
+function javaScriptIndentation(
+	document: vscode.TextDocument,
+	modifications: vscode.TextEdit[]
+) {}

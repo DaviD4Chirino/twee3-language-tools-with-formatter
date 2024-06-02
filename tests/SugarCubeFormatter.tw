@@ -34,8 +34,12 @@
 			<</cycle>>
 		<</if>>
 <</if>> */
+<<if condition>>asdasdas<</if>>
+<div condition></div>
 
 <<if condition>>
+<div condition>asdasdasdas</div>
+<<if condition>><</if>>
 <<cycle "_receiverName">>
 <<optionsfrom collection>>
 <</cycle>>
@@ -55,6 +59,10 @@ content
 content
 <</switch>>
 
+
+<<set$chestEmpty = {"one":true,"two":true,"three":false}>>
+<<set $cheese= ["one","two","three", false, true]>> 
+
 <</if>>
 <</if>>
 
@@ -72,20 +80,24 @@ all of the below should look like this:
 <<set _counter -= 1>>
 <<unset _counter -= 1>>
 <<set _counter %= 1>> */
-<<set $value = {
-	something: "else"
-}>>
+<<set $value = {something: "else"}>>
 <<set$cheese="a nice, sharp cheddar">> 
-<<set$chestEmpty = true                       >>
 <<set $gold    += 5>>
 <<set_counter-= 1>>
 <<unset _counter-= 1>>
 <<set _counter%=1>>
 <<="asdasd"                                >>
-<div>
-<div>
+
+<div id="Something" class="AnyClass">
+<<if condition>>
+/* breaks down */
+<<set$chestEmpty ={"one":true,"two":true,"three":false}>>
+<<set $cheese= ["one","two","three", false, true]>> 
+/* does not breaks down */
+<<set$chestEmpty={"one":true,"two":true}>>
+<<set $cheese=["one","two"]>> 
+<</if>>
 asdasdasd
-</div>
 </div>
 
 

@@ -6,6 +6,7 @@ import {
 	macroRegex,
 	macroRegexFactory,
 } from "./sugarcube-2/macros";
+const TAG_REGEX: RegExp = /((?<macroTag><<)|(?<htmlStart><))(?<closed>\/)?([a-zA-z "=+*]*)((?<macroEnd>>>)|(?<htmlEnd>>))/m;
 
 export type macroData = macroDef & {
 	start?: Boolean;
@@ -72,8 +73,10 @@ export function getMacroData(
 	// 	macroRegexFactory(macroNamePattern, MacroRegexType.Start).exec(text)
 	// );
 
-	const macroNameRegex = /<<\/?\s*(\w*)/gm.exec(text);
-	if (!macroNameRegex) return {};
+	const macroNameRegex = /<<?\/?\s*(\w*)/gm.exec(text);
+	if (!macroNameRegex) {
+		return {};
+	}
 
 	const OPEN_MACRO_TOKEN: RegExp = /<<[^\/]/gm;
 	const CLOSED_MACRO_TOKEN: RegExp = /<<\//gm;
@@ -95,9 +98,35 @@ export function getMacroData(
 			}
 		}
 	}
+
 	return {};
 }
-export function getHtmlBlock(text: string) {}
+
+export type htmlTagData = {
+	start: Boolean;
+};
+
+export function isHtmlTag(text: string): Boolean {
+	if (!TAG_REGEX.test(text)) return false;
+	const exec: RegExpExecArray = TAG_REGEX.exec(text) as RegExpExecArray;
+
+	if (exec.groups?.htmlStart && exec.groups?.htmlEnd) {
+		return true;
+	}
+
+	return false;
+}
+
+export function isHtmlTagOpen(text: string): Boolean {
+	const exec: RegExpExecArray | null = TAG_REGEX.exec(text);
+	if (exec) {
+		return exec.groups?.closed ? false : true;
+	}
+	return false;
+
+	// console.log();
+}
+
 export function inRange(number: number, min: number, max: number): boolean {
 	return number >= min && number <= max;
 }
@@ -119,7 +148,6 @@ export function parseReplacementString(text: string, exec: RegExpExecArray) {
 	const REPLACEMENT_REGEXP: RegExp = /{\[(\d)\]}/m;
 	const TERNARY_REGEXP: RegExp = /(\(\{\[(?<index>\d)\]})[^\S\n]*\?(?<ifTrue>.*):(?<ifFalse>.*)\)/m;
 
-	console.log(exec);
 	const ternaryExec: RegExpExecArray | null = TERNARY_REGEXP.exec(text);
 
 	if (ternaryExec) {
@@ -155,6 +183,39 @@ export function parseReplacementString(text: string, exec: RegExpExecArray) {
 			`${exec[Number(matches[1])] ? exec[Number(matches[1])] : ""}`
 		);
 	}
-	console.log(text);
 	return text;
+}
+
+/**
+ * Used in formatting, it returns a string that separates an object if is too long in a single line
+ * @param text string
+ */
+export function breakDownObject(
+	text: string,
+	indentationLevel: number
+): string {
+	const OBJECT_REGEX: RegExp = /{(.*)}|\[(.*)\]/m;
+	const exec: RegExpExecArray | null = OBJECT_REGEX.exec(text);
+	let result: string = text;
+
+	if (exec) {
+		const level: string = indentationConstructor(indentationLevel);
+
+		/** Splits either an object or an array, both have the same procedure */
+		let elements: string[] = exec[1] ? exec[1].split(",") : exec[2].split(",");
+
+		elements = elements.map((el: string) => el.trim());
+		// console.log(elements);
+
+		if (elements.length > 2) {
+			result = text.replace(
+				exec[1] ? exec[1] : exec[2],
+				`\n${indentationConstructor(indentationLevel + 1)}` +
+					elements.join(`,\n${indentationConstructor(indentationLevel + 1)}`) +
+					`\n${indentationConstructor(indentationLevel)}`
+			);
+		}
+	}
+
+	return result;
 }

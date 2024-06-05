@@ -11,6 +11,10 @@ import {
 import { macroDef, macroList, macroRegex } from "../macros";
 import { clamp } from "lodash";
 
+const SINGLE_LINE_OBJECT_ARRAY_REGEX: RegExp = /{.*}|\[.*\]/m;
+const START_OBJECT_ARRAY_REGEX: RegExp = /{|\[/m;
+const END_OBJECT_ARRAY_REGEX: RegExp = /}|\]/m;
+
 const SINGLE_LINE_HTML_TAG: RegExp = />(.*)(?=<\/)/m;
 const SINGLE_LINE_MACRO: RegExp = />>(.*)(?=<<\/)/m;
 
@@ -18,9 +22,6 @@ export async function indentation(
 	document: vscode.TextDocument,
 	modifications: vscode.TextEdit[]
 ) {
-	const SINGLE_LINE_OBJECT_ARRAY_REGEX: RegExp = /{.*}|\[.*\]/m;
-	const START_OBJECT_ARRAY_REGEX: RegExp = /{|\[/m;
-	const END_OBJECT_ARRAY_REGEX: RegExp = /}|\]/m;
 	/** I need a way to differentiate between an else, a macro that should wrap itself and a print, a macro that should not wrap itself */
 	const newMacroList = await macroList();
 
@@ -121,7 +122,7 @@ export async function indentation(
 			(isHtml && !isHtmlOpen && !isHtmlSingleLine)
 		) {
 			setIndentationLevel(indentationLevel - 1);
-			if (childIndentationLevel > 1) {
+			if (childIndentationLevel >= 1) {
 				setChildIndentationLevel(childIndentationLevel - 1);
 			}
 			startOfContainer = false;
@@ -153,7 +154,7 @@ export async function indentation(
 			(isHtml && isHtmlOpen && !isHtmlSingleLine)
 		) {
 			setIndentationLevel(indentationLevel + 1);
-			console.log(macroInfo?.name);
+			// console.log(macroInfo?.name);
 			startOfContainer = true;
 		}
 

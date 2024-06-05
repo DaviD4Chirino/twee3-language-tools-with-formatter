@@ -48,9 +48,9 @@
 	<<else>>
 		<<switch expression>>
 			<<case valueList>>
-			content
-			<<default>>
-			content
+				content
+				<<default>>
+				content
 		<</switch>>
 		
 		<<if condition>>
@@ -59,18 +59,25 @@
 				content
 			<<elseif condition>>
 				content
-
-			<<if condition>>
-				constent
-				<<else>>
-					content
-				<<elseif condition>>
-					content
-			<</if>>
+				
+				<<if condition>>
+					constent
+					<<else>>
+						content
+					<<elseif condition>>
+						content
+				<</if>>
 		<</if>>
 		
 <</if>>
 
+<div>
+	<<if condition>>
+		<img src="">
+		<<else>>
+			asdasdsa
+		<</if>>
+<div>
 
 
 /* breaks down */

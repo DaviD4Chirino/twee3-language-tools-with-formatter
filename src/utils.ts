@@ -74,7 +74,7 @@ export function getMacroData(
 	// 	macroRegexFactory(macroNamePattern, MacroRegexType.Start).exec(text)
 	// );
 
-	const macroNameRegex = /<<?\/?\s*([a-zA-Z=-]*)/gm.exec(name);
+	const macroNameRegex = /<<\/?\s*([A-Za-z][\w-]*|[=-])/gm.exec(name);
 
 	if (!macroNameRegex) {
 		return {};
@@ -84,16 +84,15 @@ export function getMacroData(
 	const CLOSED_MACRO_TOKEN: RegExp = /<<\//gm;
 
 	const macroName = macroNameRegex[1];
-	console.log(macroList["="]);
 
 	// if (macroList[name]) {
 	// 	let macro: macroData = macroList[name];
 	// 	return macro;
 	// }
+	// * Doing it any other way did not gave me the result i wanted
 	for (const key in macroList) {
 		if (Object.prototype.hasOwnProperty.call(macroList, key)) {
 			let macro: macroData = macroList[key];
-			console.log(macroName, macro.name);
 			if (macro.name != macroName) continue;
 
 			if (OPEN_MACRO_TOKEN.test(macroNameRegex[0])) {

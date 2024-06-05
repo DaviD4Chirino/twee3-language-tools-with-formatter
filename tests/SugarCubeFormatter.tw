@@ -1,106 +1,56 @@
 :: StoryData
-{
-	"ifid": "0C145200-B086-4BE9-9684-F0680B7DE944",
-	"format": "SugarCube",
-	"format-version": "2"
-}
+{"ifid": "0C145200-B086-4BE9-9684-F0680B7DE944","format": "SugarCube","format-version": "2"}
 
 :: Main
 
 /* This should be separated */
-:: StuckPassage
+::StuckPassage
 
 /* this should be deleted */
+::
 
-/*TODO */
-:: ThesePassagesShouldBeSeparated
-:: ThesePassagesShouldBeSeparated
-:: ThesePassagesShouldBeSeparated
-:: ThesePassagesShouldBeSeparated
+/* Identation test*/
 
-:: ThisShouldNot
-
-
-
-/* Identation test, should look like this */
-/* <<if condition>>
-	<<cycle "_receiverName">>
-		<<optionsfrom collection>>
-	<</cycle>>
-	<<elseif condition>>
-		test
-		
-	<<else>>
-		<<if condition>>
-			<<cycle "_receiverName">>
-				<<optionsfrom collection>>
-			<</cycle>>
-		<</if>>
-<</if>> */
 <<if condition>>
-	content
-	<<elseif condition>>
-		<<for>>
-			<<print "loop">>
-			<<break>>
-			<<continue>>
-		<</for>>
-	<<else>>
-		<<switch expression>>
-			<<case valueList>>
-				content
-				<<default>>
-				content
-		<</switch>>
-		
-		<<if condition>>
-			content
-			<<else>>
-				content
-			<<elseif condition>>
-				content
-				
-				<<if condition>>
-					constent
-					<<else>>
-						content
-					<<elseif condition>>
-						content
-				<</if>>
-		<</if>>
-		
+content
+<<elseif condition>>
+
+<<else>>
+<<switch expression>>
+<<case valueList>>
+content
+<<default>>
+content
+<</switch>>
+
+<<if condition>>
+content
+<<elseif condition>>
+content
+
+<<if condition>>
+constent
+<<elseif condition>>
+content
+<</if>>
 <</if>>
 
-<div>
-	<<if condition>>
-		<img src="">
-		<<else>>
-			asdasdsa
-		<</if>>
-<div>
+<</if>>
+
 
 
 /* breaks down */
-<<set $chestEmpty = {
-	"one": true,
-	"two": true,
-	"three": false
-}>>
-<<set $chestEmpty = [
-	"one",
-	"two",
-	"three",
-	"four"
-]>>
+<<set $chestEmpty = {"one":true,"two":true,"three":false}>>
+<<set $chestEmpty =["one","two","three","four"]>>
 
 /* does not breaks down */
-<<set $chestEmpty = {"one": true, "two": true}>>
-<<set $cheese = ["one", "two"]>>
+<<set $chestEmpty = {"one":true,"two":true}>>
+<<set $cheese = ["one","two"]>>
 
 set testing
 
-<<set $thisShouldBeSeparated>>
-<<unset _thisShouldBeSeparated>>
+<<set$thisShouldBeSeparated>>
+<<unset_thisShouldBeSeparated>>
 
 
 all of the below should look like this:
@@ -111,19 +61,19 @@ all of the below should look like this:
 <<set _counter %= 1>>
 <<= "asdasd">> */
 
-<<set $cheese = "a nice, sharp cheddar">>
-<<set $gold += 5>>
+<<set						$cheese = 						"a nice, sharp cheddar">>
+<<set $gold += 				5>>
 <<set _counter -= 1>>
-<<unset _counter -= 1>>
-<<set _counter %= 1>>
+<<unset _counter-= 1>>
+<<set_counter %=1>>
 <<="asdasd">>
 
 
 
 <<script>>
-	
-	function name(params) {
-		let x = false
-	}
+
+function name(params) {
+let x = false
+}
 	
 <</script>>

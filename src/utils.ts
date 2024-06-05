@@ -1,17 +1,16 @@
 import * as vscode from "vscode";
-import {
-	MacroRegexType,
-	macroDef,
-	macroNamePattern,
-	macroRegex,
-	macroRegexFactory,
-} from "./sugarcube-2/macros";
-const TAG_REGEX: RegExp = /((?<macroTag><<)|(?<htmlStart><))(?<closed>\/)?\s*(?<name>[\w]*)(?<arguments>[\s\w "=]*)?((?<macroEnd>>>)|(?<htmlEnd>>))/m;
-const s = /((?<macroTag><<)|(?<htmlStart><))(?<closed>\/)?\s*(?<name>[\w]*)(?<arguments>[\s\w "=]*)?((?<macroEnd>>>)|(?<htmlEnd>>))/gm;
+import { macroDef } from "./sugarcube-2/macros";
 
+export type htmlTagData = {
+	name: string;
+	open: boolean;
+	selfClosed: boolean;
+};
 export type macroData = macroDef & {
 	start?: Boolean;
 };
+
+const TAG_REGEX: RegExp = /((?<macroTag><<)|(?<htmlStart><))(?<closed>\/)?\s*(?<name>[\w\-=]*)(?<arguments>[\s\w "=]*)?((?<macroEnd>>>)|(?<htmlEnd>>))/m;
 
 export function headsplit(raw: string, regexp: RegExp, caps: number = 1) {
 	const text = raw.trim().split(/\r?\n/);
@@ -109,37 +108,18 @@ export function getMacroData(
 	return {};
 }
 
-export type htmlTagData = {
-	start: Boolean;
-};
-
-export function isHtmlTag(text: string): Boolean {
-	if (!TAG_REGEX.test(text)) return false;
+/**
+ * The differences between macros and html in RegExp are minimal, so for me to differentiate i had to detect both and filter them manually
+ * @param text the current line
+ * @returns
+ */
+export function getHtmlData(text: string): htmlTagData | null {
+	if (!TAG_REGEX.test(text)) return null;
 	const exec: RegExpExecArray = TAG_REGEX.exec(text) as RegExpExecArray;
-	// console.log(exec);
 
-	if (exec.groups?.htmlStart && exec.groups?.htmlEnd) {
-		return true;
-	}
-
-	return false;
-}
-
-export function isHtmlTagOpen(text: string): Boolean {
-	const exec: RegExpExecArray | null = TAG_REGEX.exec(text);
-
-	if (exec) {
-		return exec.groups?.closed ? false : true;
-	}
-	return false;
-
-	// console.log();
-}
-
-export function isHtmlTagSingleLine(text: string): Boolean {
-	if (!TAG_REGEX.test(text)) return false;
-	const exec: RegExpExecArray = TAG_REGEX.exec(text) as RegExpExecArray;
-	const htmlOpenTags: string[] = [
+	// if it starts with html tag, and ends with html tag, it is a html tag
+	if (!exec.groups?.htmlStart && !exec.groups?.htmlEnd) return null;
+	const htmlSelfClosedTags: string[] = [
 		"area",
 		"base",
 		"br",
@@ -156,16 +136,29 @@ export function isHtmlTagSingleLine(text: string): Boolean {
 		"wbr",
 	];
 
-	if (htmlOpenTags.includes(exec.groups?.name || "")) {
-		return true;
-	}
-	return false;
+	// default object
+	let result: htmlTagData = {
+		name: "",
+		open: false,
+		selfClosed: false,
+	};
+	// the name is not externally, but it may be necessary later
+	result.name = exec.groups.name || "";
+	result.open = exec.groups.closed ? false : true;
+	result.selfClosed = htmlSelfClosedTags.includes(result.name);
+
+	return result;
 }
 
 export function inRange(number: number, min: number, max: number): boolean {
 	return number >= min && number <= max;
 }
-
+/**
+ * You can use this to say, detect where the comments lines are and prevent formatting there, or if you have an array of numbers and want to check if is not between any of them
+ * @param number
+ * @param ranges
+ * @returns
+ */
 export function inAnyRange(
 	number: number,
 	ranges: [[number, number]]
@@ -179,6 +172,14 @@ export function inAnyRange(
 	return false;
 }
 
+/**
+ * A tool to make replacements easier, when you want to replace something but need a replacement to be a text detected in the RexExp, you can use a ternary wrapped in parenthesis like: ({[1]}:{[1]}?{[2]})
+ * in that case it says: if the group 1 exist, replace everything in the () with the group after the :
+ * otherwise replace is with the group after ?
+ * @param text
+ * @param exec
+ * @returns
+ */
 export function parseReplacementString(text: string, exec: RegExpExecArray) {
 	const REPLACEMENT_REGEXP: RegExp = /{\[(\d)\]}/m;
 	const TERNARY_REGEXP: RegExp = /(\(\{\[(?<index>\d)\]})[^\S\n]*\?(?<ifTrue>.*):(?<ifFalse>.*)\)/m;
@@ -186,9 +187,6 @@ export function parseReplacementString(text: string, exec: RegExpExecArray) {
 	const ternaryExec: RegExpExecArray | null = TERNARY_REGEXP.exec(text);
 
 	if (ternaryExec) {
-		// while ((matches = text.match(TERNARY_REGEXP))) {
-		// 	console.log(matches);
-		// }
 		if (exec[Number(ternaryExec.groups?.index)]) {
 			text = text.replace(
 				TERNARY_REGEXP,
@@ -200,16 +198,6 @@ export function parseReplacementString(text: string, exec: RegExpExecArray) {
 				ternaryExec.groups?.ifFalse ? ternaryExec.groups?.ifFalse : ""
 			);
 		}
-		// if (exec[Number(ternaryExec.groups?.index)]) {
-		// 	text = text.replace(/\(.*\)/m, exec[Number(ternaryExec.groups?.ifTrue)]);
-		// } else {
-		// 	text = text.replace(
-		// 		/\(.*\)/m,
-		// 		exec[Number(ternaryExec.groups?.ifFalse)]
-		// 			? exec[Number(ternaryExec.groups?.ifFalse)]
-		// 			: ""
-		// 	);
-		// }
 	}
 	let matches: string[] | null = [];
 	while ((matches = text.match(REPLACEMENT_REGEXP))) {
@@ -222,7 +210,7 @@ export function parseReplacementString(text: string, exec: RegExpExecArray) {
 }
 
 /**
- * Used in formatting, it returns a string that separates an object if is too long in a single line
+ * Used in formatting, it returns a string that separates an object or array if is too long in a single line
  * @param text string
  */
 export function breakDownObject(

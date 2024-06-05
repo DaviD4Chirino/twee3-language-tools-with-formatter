@@ -29,10 +29,10 @@ export const FULL_DOCUMENT_RULES: Rules = {
 		regex: /<<\/\s+/gm,
 		replacement: "<</",
 	},
-	NOT_MUCH_SPACE: {
-		regex: /\n{2,}/gm,
-		replacement: "",
-	},
+	// NOT_MUCH_SPACE: {
+	// 	regex: /\n{2,}/gm,
+	// 	replacement: "",
+	// },
 
 	// NO_MULTILINE_EMPTY_MACROS: {
 	// 	regex: />>\s+<<\//gm,
@@ -55,16 +55,12 @@ export function fullDocumentFormat(
 	);
 	const fullText: string = document.getText();
 
-	mainLoop: for (const rule in FULL_DOCUMENT_RULES) {
+	for (const rule in FULL_DOCUMENT_RULES) {
 		if (Object.prototype.hasOwnProperty.call(FULL_DOCUMENT_RULES, rule)) {
 			const currentRule = FULL_DOCUMENT_RULES[rule];
 			const exec = currentRule.regex.exec(fullText);
 
 			if (exec) {
-				// if (inAnyRange(exec.index, ranges)) {
-				// 	// console.log(rule + " is inside comment");
-				// 	continue mainLoop;
-				// }
 				modifications.push(
 					vscode.TextEdit.replace(
 						fullDocumentRange,

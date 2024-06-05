@@ -142,14 +142,16 @@
 		"parents": [
 			"switch"
 		],
-		"skipArgs": true
+		"skipArgs": true,
+		"indenter":true
 	},
 	"default": {
 		"name": "default",
 		"parents": [
 			"switch"
 		],
-		"skipArgs": true
+		"skipArgs": true,
+		"indenter":true
 	},
 	
 	"button": {

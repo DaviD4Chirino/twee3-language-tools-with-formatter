@@ -74,35 +74,38 @@ export function getMacroData(
 	// 	macroRegexFactory(macroNamePattern, MacroRegexType.Start).exec(text)
 	// );
 
-	// const macroNameRegex = /<<?\/?\s*(\w*)/gm.exec(name);
-	// if (!macroNameRegex) {
-	// 	return {};
-	// }
+	const macroNameRegex = /<<?\/?\s*([a-zA-Z=-]*)/gm.exec(name);
 
-	// const OPEN_MACRO_TOKEN: RegExp = /<<[^\/]/gm;
-	// const CLOSED_MACRO_TOKEN: RegExp = /<<\//gm;
-
-	// const macroName = macroNameRegex[1];
-
-	if (macroList[name]) {
-		let macro: macroData = macroList[name];
-		return macro;
+	if (!macroNameRegex) {
+		return {};
 	}
-	// for (const key in macroList) {
-	// 	if (Object.prototype.hasOwnProperty.call(macroList, key)) {
-	// 		let macro: macroData = macroList[key];
-	// 		if (macro.name != macroName) continue;
 
-	// 		if (OPEN_MACRO_TOKEN.test(macroNameRegex[0])) {
-	// 			macro["start"] = macro.parents ? false : true;
-	// 			return macro;
-	// 		}
-	// 		if (CLOSED_MACRO_TOKEN.test(macroNameRegex[0])) {
-	// 			macro["start"] = macro.parents ? true : false;
-	// 			return macro;
-	// 		}
-	// 	}
+	const OPEN_MACRO_TOKEN: RegExp = /<<[^\/]/gm;
+	const CLOSED_MACRO_TOKEN: RegExp = /<<\//gm;
+
+	const macroName = macroNameRegex[1];
+	console.log(macroList["="]);
+
+	// if (macroList[name]) {
+	// 	let macro: macroData = macroList[name];
+	// 	return macro;
 	// }
+	for (const key in macroList) {
+		if (Object.prototype.hasOwnProperty.call(macroList, key)) {
+			let macro: macroData = macroList[key];
+			console.log(macroName, macro.name);
+			if (macro.name != macroName) continue;
+
+			if (OPEN_MACRO_TOKEN.test(macroNameRegex[0])) {
+				macro["start"] = macro.parents ? false : true;
+				return macro;
+			}
+			if (CLOSED_MACRO_TOKEN.test(macroNameRegex[0])) {
+				macro["start"] = macro.parents ? true : false;
+				return macro;
+			}
+		}
+	}
 
 	return {};
 }

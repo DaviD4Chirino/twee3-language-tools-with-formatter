@@ -8,7 +8,7 @@ import {
 	isHtmlTag,
 	isHtmlTagSingleLine,
 } from "../../utils";
-import { macroList, macroRegex } from "../macros";
+import { macroDef, macroList, macroRegex } from "../macros";
 import { clamp } from "lodash";
 
 const SINGLE_LINE_HTML_TAG: RegExp = />(.*)(?=<\/)/m;
@@ -22,27 +22,28 @@ export async function indentation(
 	const START_OBJECT_ARRAY_REGEX: RegExp = /{|\[/m;
 	const END_OBJECT_ARRAY_REGEX: RegExp = /}|\]/m;
 	/** I need a way to differentiate between an else, a macro that should wrap itself and a print, a macro that should not wrap itself */
-	const childIndenters = ["else", "elseif", "default", "case"];
 	const newMacroList = await macroList();
 
 	const numLines = document.lineCount;
 	let indentationLevel = 0;
-	let childIndentation: Boolean = false;
+	let childIndentationLevel = 0;
+	let startOfContainer: Boolean = false;
 
 	function setIndentationLevel(amount: number) {
-		indentationLevel = clamp(indentationLevel + amount, 0, Infinity);
+		indentationLevel = clamp(amount, 0, Infinity);
+		// console.log(indentationLevel);
+	}
+	function setChildIndentationLevel(amount: number) {
+		childIndentationLevel = clamp(amount, 0, Infinity);
 	}
 	function applyIndentation(line: vscode.TextLine, level: number) {
 		modifications.push(
-			vscode.TextEdit.insert(
-				line.range.start,
-				indentationConstructor(level) + level
-			)
+			vscode.TextEdit.insert(line.range.start, indentationConstructor(level))
 		);
 	}
 	for (let i = 0; i < numLines; i++) {
 		const line: vscode.TextLine = document.lineAt(i);
-		let targetIndentationLevel = indentationLevel + (childIndentation ? 1 : 0);
+		let targetIndentationLevel = indentationLevel + childIndentationLevel;
 
 		const isHtml: Boolean = isHtmlTag(line.text);
 		const isHtmlOpen: Boolean = isHtmlTagOpen(line.text);
@@ -96,12 +97,9 @@ export async function indentation(
 				continue;
 			}
 		}
-		const macroExec = macroRegex.exec(line.text);
-		let macroInfo = newMacroList[macroExec?.groups?.macroName || ""];
+		let macroInfo: macroData = getMacroData(line.text, newMacroList);
 
-		// console.log(macroInfo);
 		// console.log(macroExec);
-
 		const isObjectArraySingleLine: Boolean = SINGLE_LINE_OBJECT_ARRAY_REGEX.test(
 			line.text
 		);
@@ -116,38 +114,55 @@ export async function indentation(
 				)
 			);
 		}
-
+		// Lower indentation
 		if (
-			(macroInfo?.container && macroExec?.groups?.macroEnd) ||
+			(!macroInfo?.indenter && macroInfo?.container && !macroInfo?.start) ||
 			(END_OBJECT_ARRAY_REGEX.test(line.text) && !isObjectArraySingleLine) ||
 			(isHtml && !isHtmlOpen && !isHtmlSingleLine)
 		) {
-			setIndentationLevel(-1);
+			setIndentationLevel(indentationLevel - 1);
+			if (childIndentationLevel > 1) {
+				setChildIndentationLevel(childIndentationLevel - 1);
+			}
+			startOfContainer = false;
 		}
 		// if is a child macro and is a permitted macro, it will unindent,
 		// Also when the level is 0, because if theres no more indentation  we can safely assume is the end
-		if (macroInfo?.indenter || indentationLevel == 0) {
-			childIndentation = false;
-			// console.log(macroInfo?.name);
+		if (startOfContainer && macroInfo?.indenter) {
+			startOfContainer = false;
+		} else if (!startOfContainer && macroInfo?.indenter) {
+			setChildIndentationLevel(childIndentationLevel - 1);
 		}
 
-		// if (macroInfo?.parents) {
-		// 	console.log(`${macroInfo?.name} - ${line.text}`);
-		// }
-		applyIndentation(line, indentationLevel + (childIndentation ? 1 : 0));
+		if (indentationLevel == 0) {
+			setChildIndentationLevel(0);
+		}
 
+		applyIndentation(line, indentationLevel + childIndentationLevel);
+		// modifications.push(
+		// 	vscode.TextEdit.insert(
+		// 		line.range.end,
+		// 		"" + (indentationLevel + childIndentationLevel)
+		// 	)
+		// );
+
+		// Increase indentation
 		if (
-			(macroInfo?.container && !macroExec?.groups?.macroEnd) ||
+			(!macroInfo?.indenter && macroInfo?.container && macroInfo?.start) ||
 			(START_OBJECT_ARRAY_REGEX.test(line.text) && !isObjectArraySingleLine) ||
 			(isHtml && isHtmlOpen && !isHtmlSingleLine)
 		) {
-			setIndentationLevel(1);
+			setIndentationLevel(indentationLevel + 1);
+			console.log(macroInfo?.name);
+			startOfContainer = true;
 		}
 
 		if (macroInfo?.indenter) {
-			childIndentation = true;
-			// console.log(macroInfo.name);
+			setChildIndentationLevel(childIndentationLevel + 1);
 		}
+		// console.log(
+		// 	`${i} - identation: ${indentationLevel + childIndentationLevel}`
+		// );
 	}
 
 	// vscode.commands.executeCommand("editor.action.formatDocument", {

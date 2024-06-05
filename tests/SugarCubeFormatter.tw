@@ -1,13 +1,16 @@
 :: StoryData
-{"ifid": "0C145200-B086-4BE9-9684-F0680B7DE944","format": "SugarCube","format-version": "2"}
+{
+	"ifid": "0C145200-B086-4BE9-9684-F0680B7DE944",
+	"format": "SugarCube",
+	"format-version": "2"
+}
 
 :: Main
 
 /* This should be separated */
-::StuckPassage
+:: StuckPassage
 
 /* this should be deleted */
-::
 
 /*TODO */
 :: ThesePassagesShouldBeSeparated
@@ -34,89 +37,86 @@
 			<</cycle>>
 		<</if>>
 <</if>> */
-<<if condition>>asdasdas<</if>>
-<div condition></div>
-
 <<if condition>>
-<div condition>asdasdasdas</div>
-<<if condition>><</if>>
-<<cycle "_receiverName">>
-<<optionsfrom collection>>
-<</cycle>>
-<<elseif condition>>
-test
+	content
+	<<elseif condition>>
+		<<for>>
+			<<print "loop">>
+			<<break>>
+			<<continue>>
+		<</for>>
+	<<else>>
+		<<switch expression>>
+			<<case valueList>>
+			content
+			<<default>>
+			content
+		<</switch>>
+		
+		<<if condition>>
+			content
+			<<else>>
+				content
+			<<elseif condition>>
+				content
 
-<<else>>
-<<if condition>>
-<<cycle "_receiverName">>
-<<optionsfrom collection>>
-<</cycle>>
-
-<<switch expression>>
-<<case valueList>>
-content
-<<default>>
-content
-<</switch>>
-
-
-<<set$chestEmpty = {"one":true,"two":true,"three":false}>>
-<<set $cheese= ["one","two","three", false, true]>> 
-
+			<<if condition>>
+				constent
+				<<else>>
+					content
+				<<elseif condition>>
+					content
+			<</if>>
+		<</if>>
+		
 <</if>>
-<</if>>
 
+
+
+/* breaks down */
+<<set $chestEmpty = {
+	"one": true,
+	"two": true,
+	"three": false
+}>>
+<<set $chestEmpty = [
+	"one",
+	"two",
+	"three",
+	"four"
+]>>
+
+/* does not breaks down */
+<<set $chestEmpty = {"one": true, "two": true}>>
+<<set $cheese = ["one", "two"]>>
 
 set testing
 
-<<set$thisShouldBeSeparated>>
-<<unset_thisShouldBeSeparated>>
+<<set $thisShouldBeSeparated>>
+<<unset _thisShouldBeSeparated>>
 
 
 all of the below should look like this:
-/* <<set $cheese = "a nice, sharp cheddar">> 
-<<set $chestEmpty = true>>
+/*<<set $cheese = "a nice, sharp cheddar">>
 <<set $gold += 5>>
 <<set _counter -= 1>>
 <<unset _counter -= 1>>
-<<set _counter %= 1>> */
-<<set $value = {something: "else"}>>
-<<set$cheese="a nice, sharp cheddar">> 
-<<set $gold    += 5>>
-<<set_counter-= 1>>
-<<unset _counter-= 1>>
-<<set _counter%=1>>
-<<="asdasd"                                >>
+<<set _counter %= 1>>
+<<= "asdasd">> */
 
-<div id="Something" class="AnyClass">
-<img src="" alt="">
-<<if condition>>
-/* breaks down */
-<<set$chestEmpty ={"one":true,"two":true,"three":false}>>
-<<set$chestEmpty ={}>>
-<<set $cheese= ["one","two","three", false, true]>> 
-/* does not breaks down */
-<<set$chestEmpty={"one":true,"two":true}>>
-<<set $cheese=["one","two"]>> 
-<</if>>
+<<set $cheese = "a nice, sharp cheddar">>
+<<set $gold += 5>>
+<<set _counter -= 1>>
+<<unset _counter -= 1>>
+<<set _counter %= 1>>
+<<="asdasd">>
 
-<<switch expression>>
-<<case valueList>>
-content
-<<case valueList>>
-	content
-<<default>>
-	content
-<</switch>>
-
-asdasdasd
-</div>
 
 
 <<script>>
-
-function name(params) {
-	let x = false
-}
-
+	
+	function name(params) {
+		let x = false
+	}
+	
 <</script>>

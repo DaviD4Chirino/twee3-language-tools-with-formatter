@@ -9,3 +9,9 @@ sugarcube-2:
     openCustomMacro:
       name: openCustomMacro
       container: true
+    customClosedMacro:
+      name: customClosedMacro
+    customOpenMacro:
+      name: customOpenMacro
+      container: true
+

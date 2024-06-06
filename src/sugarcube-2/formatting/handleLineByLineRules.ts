@@ -17,10 +17,10 @@ export const LINE_BY_LINE_RULES: Rules = {
 		replacement: "<<{[1]} {[2]}>>",
 	},
 
-	CORRECT_UNSET_FORMATTING: {
-		regex: /<<\s*(set|unset)\s*(\$\w*|_\w*)\s*>>/gm,
-		replacement: "<<{[1]} {[2]}>>",
-	},
+	// CORRECT_UNSET_FORMATTING: {
+	// 	regex: /<<\s*(set|unset)\s*(\$\w*|_\w*)\s*>>/gm,
+	// 	replacement: "<<{[1]} {[2]}>>",
+	// },
 	CORRECT_PRINT_FORMATTING: {
 		regex: /<<\s*(print|=|-)\s*(.*)\s*>>/gm,
 		replacement: "<<{[1]}({[2]}? {[2]}:)>>",

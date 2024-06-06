@@ -113,7 +113,7 @@ export async function indentation(
 				)
 			);
 		}
-		// Lower indentation
+		//! Lower indentation
 		if (
 			(!macroInfo?.indenter && macroInfo?.container && !macroInfo?.start) ||
 			(END_OBJECT_ARRAY_REGEX.test(line.text) && !isObjectArraySingleLine) ||
@@ -121,7 +121,11 @@ export async function indentation(
 			//isHtml && isHtmlOpen && !isHtmlSingleLine
 		) {
 			setIndentationLevel(indentationLevel - 1);
-			if (childIndentationLevel >= 1) {
+			if (
+				childIndentationLevel >= 1 &&
+				macroInfo?.children &&
+				!startOfContainer
+			) {
 				setChildIndentationLevel(childIndentationLevel - 1);
 			}
 			startOfContainer = false;

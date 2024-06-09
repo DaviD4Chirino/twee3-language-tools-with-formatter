@@ -9,8 +9,10 @@ import {
 } from "../../utils";
 import { macroList } from "../macros";
 import { clamp } from "lodash";
+import { SINGLE_LINE_OBJECT_ARRAY } from "./commonRegExp";
 
 const SINGLE_LINE_OBJECT_ARRAY_REGEX: RegExp = /{.*}|\[.*\]/m;
+const PASSAGE_TOKEN: RegExp = /::/m;
 const START_OBJECT_ARRAY_REGEX: RegExp = /{|\[/m;
 const END_OBJECT_ARRAY_REGEX: RegExp = /}|\]/m;
 
@@ -101,7 +103,7 @@ export async function indentation(
 
 		let macroInfo: macroData = getMacroData(line.text, newMacroList);
 
-		const isObjectArraySingleLine: Boolean = SINGLE_LINE_OBJECT_ARRAY_REGEX.test(
+		const isObjectArraySingleLine: Boolean = SINGLE_LINE_OBJECT_ARRAY.test(
 			line.text
 		);
 

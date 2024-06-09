@@ -14,4 +14,6 @@ sugarcube-2:
     customOpenMacro:
       name: customOpenMacro
       container: true
-
+    liveblock:
+      name: liveblock
+      container: true

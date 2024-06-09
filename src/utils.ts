@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { macroDef } from "./sugarcube-2/macros";
+import { SINGLE_LINE_OBJECT_ARRAY } from "./sugarcube-2/formatting/commonRegExp";
 
 export type htmlTagData = {
 	name: string;
@@ -66,14 +67,14 @@ export function indentationConstructor(levels: number): string {
 }
 
 export function getMacroData(
-	name: string,
+	text: string,
 	macroList: Record<string, macroDef>
 ): macroData {
 	// console.log(
 	// 	macroRegexFactory(macroNamePattern, MacroRegexType.Start).exec(text)
 	// );
 
-	const macroNameRegex = /<<\/?\s*([A-Za-z][\w-]*|[=-])/gm.exec(name);
+	const macroNameRegex = /<<\/?\s*([A-Za-z][\w-]*|[=-])/gm.exec(text);
 
 	if (!macroNameRegex) {
 		return {};
@@ -217,36 +218,36 @@ export function breakDownObject(
 	text: string,
 	indentationLevel: number
 ): string {
-	const OBJECT_REGEX: RegExp = /{(.*)}|\[(.*)\]/m;
-	const exec: RegExpExecArray | null = OBJECT_REGEX.exec(text);
+	const exec: RegExpExecArray | null = SINGLE_LINE_OBJECT_ARRAY.exec(text);
 	let result: string = text;
 
 	if (exec) {
-		if (!exec[1] && !exec[2]) return result;
+		const arrayOrObjectContents: string = exec[2] ? exec[2] : exec[3];
+		if (!arrayOrObjectContents) return result;
 		/** Splits either an object or an array, both have the same procedure */
-		let elements: string[] = exec[1] ? exec[1].split(",") : exec[2].split(",");
+		let elements: string[] = arrayOrObjectContents.split(",");
 
 		elements = elements.map((el: string) => el.trim());
 		// console.log(elements);
 
-		if (elements.length > 2) {
+		if (elements.length > 1) {
 			result = text.replace(
-				exec[1] ? exec[1] : exec[2],
+				arrayOrObjectContents,
 				`\n${indentationConstructor(indentationLevel + 1)}` +
 					elements.join(`,\n${indentationConstructor(indentationLevel + 1)}`) +
 					`\n${indentationConstructor(indentationLevel)}`
 			);
 		} else {
-			result = text.replace(exec[1] ? exec[1] : exec[2], elements.join(", "));
+			result = text.replace(arrayOrObjectContents, elements.join(", "));
 		}
-		const STUCK_PERIODS: RegExp = /\s*?:(\s{2,}|(?=\S))/gm;
-		if (STUCK_PERIODS.test(result)) {
-			// const stuckExec: RegExpExecArray = STUCK_PERIODS.exec(
-			// 	result
-			// ) as RegExpExecArray;
+		// const STUCK_PERIODS: RegExp = /\s*?:(\s{2,}|(?=\S))/gm;
+		// if (STUCK_PERIODS.test(result)) {
+		// 	// const stuckExec: RegExpExecArray = STUCK_PERIODS.exec(
+		// 	// 	result
+		// 	// ) as RegExpExecArray;
 
-			result = result.replace(STUCK_PERIODS, ": ");
-		}
+		// 	result = result.replace(STUCK_PERIODS, ": ");
+		// }
 	}
 
 	return result;

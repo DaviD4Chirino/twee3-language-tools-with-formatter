@@ -1,10 +1,15 @@
 # Twee 3 Language Tools With Formatter
 
-This is a fork of [Twee 3 Language Tools](https://github.com/cyrusfirheir/twee3-language-tools) that includes a SugarCube2 formatter. Everything is the same.
+This is a fork of [Twee 3 Language Tools](https://github.com/cyrusfirheir/twee3-language-tools) that includes a SugarCube2 formatter. Everything else is the same.
+
 
 ## Know issues
 
-It only formats Sugarcube2, it does not format html or javascript (yet)
+It only formats Sugarcube2, it does not format other languages, it has barebones javascript and html formatting implementation.
+
+sometimes you need to format twice or trice if the macros are stuck together.
+
+it has barebones html support and javascript
 
 ## Original README
 

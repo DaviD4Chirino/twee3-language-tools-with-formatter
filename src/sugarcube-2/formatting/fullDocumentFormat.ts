@@ -5,6 +5,7 @@ export const FULL_DOCUMENT_RULES: Rules = {
 		regex: /::(?=\S)/gm,
 		replacement: ":: ",
 	},
+
 	// SPACE_BELOW_MACRO: {
 	// 	regex: /.\n(?=::)/gm,
 	// 	replacement: "\n\n",
@@ -28,6 +29,14 @@ export const FULL_DOCUMENT_RULES: Rules = {
 	SPACE_INSIDE_ON_START_OF_CLOSED_MACRO: {
 		regex: /<<\/\s+/gm,
 		replacement: "<</",
+	},
+	// SINGLE_LINE_MACROS: {
+	// 	regex: />>(?=.+)/gm,
+	// 	replacement: ">>\n",
+	// },
+	SINGLE_LINE_PASSAGES: {
+		regex: /\]\](?=<<|<<\/)/gm,
+		replacement: "]]\n",
 	},
 	// NOT_MUCH_SPACE: {
 	// 	regex: /\n{2,}/gm,

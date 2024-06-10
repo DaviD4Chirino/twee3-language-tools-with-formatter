@@ -16,7 +16,10 @@ export const LINE_BY_LINE_RULES: Rules = {
 		regex: /<<\s*(set|unset)\s*(\$\w*|_\w*)\s*>>/gm,
 		replacement: "<<{[1]} {[2]}>>",
 	},
-
+	// FORMAT_CLOSING_SINGLE_MACROS: {
+	// 	regex: /([\w.\]}>])<<\//m,
+	// 	replacement: "{[1]}\n<</",
+	// },
 	// CORRECT_UNSET_FORMATTING: {
 	// 	regex: /<<\s*(set|unset)\s*(\$\w*|_\w*)\s*>>/gm,
 	// 	replacement: "<<{[1]} {[2]}>>",
@@ -50,4 +53,8 @@ export function handleLineByLineRules(
 			}
 		}
 	}
+
+	// vscode.commands.executeCommand(
+	// 	"cyrusfirheir.twee3-language-tools.formatDocument"
+	// );
 }

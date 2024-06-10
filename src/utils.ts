@@ -8,7 +8,7 @@ export type htmlTagData = {
 	selfClosed: boolean;
 };
 export type macroData = macroDef & {
-	start?: Boolean;
+	start?: boolean;
 };
 
 const TAG_REGEX: RegExp = /((?<macroTag><<)|(?<htmlStart><))(?<closed>\/)?\s*(?<name>[\w\-=]*)(?<arguments>[\s\w "=]*)?((?<macroEnd>>>)|(?<htmlEnd>>))/m;

@@ -11,7 +11,7 @@ import { macroList } from "../macros";
 import { clamp } from "lodash";
 import { SINGLE_LINE_OBJECT_ARRAY } from "./commonRegExp";
 
-const SINGLE_LINE_OBJECT_ARRAY_REGEX: RegExp = /{.*}|\[.*\]/m;
+const LINK: RegExp = /\[\[.*\]\]/m;
 const PASSAGE_TOKEN: RegExp = /::/m;
 const START_OBJECT_ARRAY_REGEX: RegExp = /{|\[/m;
 const END_OBJECT_ARRAY_REGEX: RegExp = /}|\]/m;
@@ -23,10 +23,12 @@ export async function indentation(
 	document: vscode.TextDocument,
 	modifications: vscode.TextEdit[]
 ) {
+	await document.save();
 	// We get the macro list, because otherwise it will create and wait for a new one in each loop
 	const newMacroList = await macroList();
 
 	const numLines = document.lineCount;
+
 	let indentationLevel = 0;
 	let childIndentationLevel = 0;
 
@@ -45,8 +47,10 @@ export async function indentation(
 			vscode.TextEdit.insert(line.range.start, indentationConstructor(level))
 		);
 	}
+
 	for (let i = 0; i < numLines; i++) {
 		const line: vscode.TextLine = document.lineAt(i);
+
 		// * For some reason it does not work when using applyIndentation a bit below
 		const targetIndentationLevel = indentationLevel + childIndentationLevel;
 
@@ -75,25 +79,24 @@ export async function indentation(
 				applyIndentation(line, targetIndentationLevel);
 				continue;
 			}
-			applyIndentation(line, targetIndentationLevel);
-			continue;
+			// applyIndentation(line, targetIndentationLevel);
+			// continue;
 		}
 
-		// The same with single_line_Macro check
 		if (htmlData) {
+			// The same with single_line_Macro check
 			const exec: RegExpExecArray | null = SINGLE_LINE_HTML_TAG.exec(line.text);
 
 			if (exec) {
+				const replacement = `>\n${exec[1] &&
+					indentationConstructor(targetIndentationLevel + 1)}${exec[1] ||
+					""}${exec[1] &&
+					"\n" + indentationConstructor(targetIndentationLevel)}`;
+
 				modifications.push(
 					vscode.TextEdit.replace(
 						line.range,
-						line.text.replace(
-							exec[0],
-							`>\n${exec[1] &&
-								indentationConstructor(targetIndentationLevel + 1)}${exec[1] ||
-								""}${exec[1] &&
-								"\n" + indentationConstructor(targetIndentationLevel)}`
-						)
+						line.text.replace(exec[0], replacement)
 					)
 				);
 				applyIndentation(line, targetIndentationLevel);
@@ -115,11 +118,21 @@ export async function indentation(
 				)
 			);
 		}
+
+		// * there are a lot of rules of when or not to indent so i break them into variables for redability
+		const isPassage = PASSAGE_TOKEN.test(line.text);
+		const isLink = LINK.test(line.text);
 		//! Lower indentation
 		if (
-			(!macroInfo?.indenter && macroInfo?.container && !macroInfo?.start) ||
-			(END_OBJECT_ARRAY_REGEX.test(line.text) && !isObjectArraySingleLine) ||
-			(htmlData && !htmlData.open && !htmlData.selfClosed)
+			(!isPassage &&
+				!macroInfo?.indenter &&
+				macroInfo?.container &&
+				!macroInfo?.start) ||
+			(!isPassage &&
+				!isLink &&
+				END_OBJECT_ARRAY_REGEX.test(line.text) &&
+				!isObjectArraySingleLine) ||
+			(!isPassage && htmlData && !htmlData.open && !htmlData.selfClosed)
 			//isHtml && isHtmlOpen && !isHtmlSingleLine
 		) {
 			setIndentationLevel(indentationLevel - 1);
@@ -134,7 +147,7 @@ export async function indentation(
 		}
 		// if is a child macro and is a permitted macro, it will unindent,
 		// Also when the level is 0, because if theres no more indentation  we can safely assume is the end
-		if (startOfContainer && macroInfo?.indenter) {
+		if (!isPassage && startOfContainer && macroInfo?.indenter) {
 			startOfContainer = false;
 		} else if (!startOfContainer && macroInfo?.indenter) {
 			setChildIndentationLevel(childIndentationLevel - 1);
@@ -145,33 +158,25 @@ export async function indentation(
 		}
 
 		applyIndentation(line, indentationLevel + childIndentationLevel);
-		// modifications.push(
-		// 	vscode.TextEdit.insert(
-		// 		line.range.end,
-		// 		"" + (indentationLevel + childIndentationLevel)
-		// 	)
-		// );
 
-		// Increase indentation
+		//! Increase indentation
 		if (
-			(!macroInfo?.indenter && macroInfo?.container && macroInfo?.start) ||
-			(START_OBJECT_ARRAY_REGEX.test(line.text) && !isObjectArraySingleLine) ||
-			(htmlData && htmlData.open && !htmlData.selfClosed)
+			(!isPassage &&
+				!macroInfo?.indenter &&
+				macroInfo?.container &&
+				macroInfo?.start) ||
+			(!isPassage &&
+				!isLink &&
+				START_OBJECT_ARRAY_REGEX.test(line.text) &&
+				!isObjectArraySingleLine) ||
+			(!isPassage && htmlData && htmlData.open && !htmlData.selfClosed)
 		) {
 			setIndentationLevel(indentationLevel + 1);
-			// console.log(macroInfo?.name);
 			startOfContainer = true;
 		}
 
-		if (macroInfo?.indenter) {
+		if (!isPassage && macroInfo?.indenter) {
 			setChildIndentationLevel(childIndentationLevel + 1);
 		}
-		// console.log(
-		// 	`${i} - identation: ${indentationLevel + childIndentationLevel}`
-		// );
 	}
-
-	// vscode.commands.executeCommand("editor.action.formatDocument", {
-	// 	source: "vscode.html-language-features",
-	// });
 }

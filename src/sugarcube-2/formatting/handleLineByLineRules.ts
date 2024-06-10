@@ -53,8 +53,4 @@ export function handleLineByLineRules(
 			}
 		}
 	}
-
-	// vscode.commands.executeCommand(
-	// 	"cyrusfirheir.twee3-language-tools.formatDocument"
-	// );
 }

@@ -82,283 +82,280 @@ Estás en el comedor esperando tu desayuno, tu madre tararea una melodía para e
 			<<linkappend "No, me niego rotundamente a ir"t8n>>
 				
 				—Supongo que puedo hacer otra cosa… [[Continuar.->El cuervo llega temprano]]
+				<</linkappend>>
+					<</linkappend>>
+				<</linkappend>>
+				
+				<<linkappend "¿No puede ir $familia.tio?"t8n>>
+					
+					—No, no puedo.
+					
+					<<linkappend "¿Por qué?"t8n>>
+						
+						—Porque no quiero.
+					<</linkappend>>
+					
+				<</linkappend>>
 				
 			<</linkappend>>
 			
-		<</linkappend>>
-		
-	<</linkappend>>
-	
-	<<linkappend "¿No puede ir $familia.tio?"t8n>>
-		
-		—No, no puedo.
-		
-		<<linkappend "¿Por qué?"t8n>>
 			
-			—Porque no quiero.
-		<</linkappend>>
-		
-	<</linkappend>>
-	
-<</linkappend>>
-
-
-:: Comienzo [donotshowinventory donotreturn] {"position":"375,125","size":"100,100"}
-Cuando el ultimo de los 7 reinos cayó. Les demostró a todos que la profecías son sólo mitos. @@Alkir@@, el responsable, se asentó en las récamaras reales protegiendo su tesoro y nunca más se volvió a saber de él.
-<<linkreplace "Continuar."t8n>>
-	
-	Aquellos que seguían a Alkir reclamaron los otros reinos como suyos, desde sus ojos su Dios les había regalado el mundo como recompenza por seguirlo. Pronto habían solo dos opciones:
-	
-	O te unías a ellos y los ayudabas a seguir conquistando tierras, o te volvías víctima de ellos.
-	
-	<<linkreplace "Continuar."t8n>>
-		Pero un día, el líder @@Lou@@ y el archimago @@Gadiel@@ juntaron 100 valientes hombres y mujeres; atacaron una aldea y expulsaron a los seguidores, volviendose esta la primera victoria de la humanidad contra Alkir.
-		
-		<<linkreplace "Continuar."t8n>>
-			Gadiel ergió una barrera protectora con magia y motores delimitando la tierra y prohibiendo definitavente el regreso de los seguidores.
-			
-			[[Continuar.->Sueño]]
-			
-		<</linkreplace>>
-		
-	<</linkreplace>>
-	
-<</linkreplace>>
-
-
-:: Decisiones [donotreturn] {"position":"625,875","size":"100,100"}
-—Que pena que el elegido renuncie a ayudar al bien mayor. Has condenado el mundo.
-
-Y con eso el pájaro alzó vuelo, regresando a las profundidades del bosque dejando la casa en un silencio absoluto. <<linkreplace "Continuar."t8n>>
-	
-	
-	Tu familia te envuelve entre sus brazos.
-	
-	—No te preocupes, hijo. No puedes confiar en todos— $familia.tio evita tus ojos.
-	
-	—Gracias a Dios… Gracias… — Tu madre intenta aguantar el llanto.
-	
-	[[Continuar.->A dormir]]
-	
-<</linkreplace>>
-
-
-:: Dia 2 part 2 {"position":"275,1700","size":"100,100"}
-Double-click this passage to edit it.
-
-
-:: Día 2 [donotreturn autosave] {"position":"175,1700","size":"100,100"}
-
-Despiertas ante los silbidos de las aves mañaneras. Bajas ante la necesidad de sustento y te presentan con un plato de Spaguetti. $familia.tio está leyendo el periódico de hoy murmurando para si mismo mientras arruga la cara.
-
-<<linkappend "¿Que lees?"t8n>>
-	<<set _cont to 0>>
-	<<linkappend "linktext" t8n>>
-		content
-	<</linkappend>>
-	
-	—Oh, ¿Por que no hechas un vistazo tu?
-	
-	<<linkappend "Leer"t8n>>
-		El periódico con fecha de ayer habla sobre
-		
-		<<linkappend "Las presiones políticas que supone la unión con el escudo rojo,"t8n>>
-			<<set _cont += 1>>
-			<<update>>
-			
-			
-		José Robinson vuelve una vez más con la forma correcta de ver el mundo  —Si, más espacio para vivir, más trabajos, más comodidad, más, más, más. Pero no están viendo lo obvio, ¡Nos pondremos un gran blanco en nuestro trasero! Pronto el mismo Alkir vendrá por nosotros y te aseguro que no hay Dios en esta tierra que lo detenga. <</linkappend>>
-		
-		<<linkappend "La nueva escultura de J.R Martinson que habla sobre injusticia que enfrentan los humanos."t8n>>
-			<<set _cont += 1>>
-			<<update>>
-			
-			
-		—Es una obra maestra— Nuestro experto de arte reporta al ver la nueva obra de J.R Martinson la cual describiría como una mujer de tamaño encerrada en una esfera translúcida de cristal de la mitad de su tamaño. —En verdad refleja la dificultad que es vivir rodeado de monstruos. Te sientes encerrado en tu propia burbuja. <</linkappend>>
-		
-		
-		<<linkappend "La tienda de ropa y calzados anuncia su inauguración."t8n>>
-			<<set _cont += 1>>
-			<<update>>
-			
-			
-			—Los invito a todos a nuestro negocio, donde conseguirán todo tipo de prendas, y cualquier objeto que los ayude a vivir con más tranquilidad. Sólo por hoy ofrecemos un 40% de rebajas en todo.
-		<</linkappend>>
-		
-		<<liveblock>>
-			<<if _cont == 3>>
-				—¿Vez a lo que me refiero?
+			:: Comienzo [donotshowinventory donotreturn] {"position":"375,125","size":"100,100"}
+			Cuando el ultimo de los 7 reinos cayó. Les demostró a todos que la profecías son sólo mitos. @@Alkir@@, el responsable, se asentó en las récamaras reales protegiendo su tesoro y nunca más se volvió a saber de él.
+			<<linkreplace "Continuar."t8n>>
 				
-				[[¿Es sobre el comentario político?->Dia 2 part 2]]
+				Aquellos que seguían a Alkir reclamaron los otros reinos como suyos, desde sus ojos su Dios les había regalado el mundo como recompenza por seguirlo. Pronto habían solo dos opciones:
 				
-				[[¿Es sobre la escultura?->Dia 2 part 2]]
+				O te unías a ellos y los ayudabas a seguir conquistando tierras, o te volvías víctima de ellos.
 				
-				[[¿Es sobre el descuento?->Dia 2 part 2]]
+				<<linkreplace "Continuar."t8n>>
+					Pero un día, el líder @@Lou@@ y el archimago @@Gadiel@@ juntaron 100 valientes hombres y mujeres; atacaron una aldea y expulsaron a los seguidores, volviendose esta la primera victoria de la humanidad contra Alkir.
+					
+					<<linkreplace "Continuar."t8n>>
+						Gadiel ergió una barrera protectora con magia y motores delimitando la tierra y prohibiendo definitavente el regreso de los seguidores.
+						
+						[[Continuar.->Sueño]]
+						
+					<</linkreplace>>
+					
+				<</linkreplace>>
 				
+			<</linkreplace>>
+			
+			
+			:: Decisiones [donotreturn] {"position":"625,875","size":"100,100"}
+			—Que pena que el elegido renuncie a ayudar al bien mayor. Has condenado el mundo.
+			
+			Y con eso el pájaro alzó vuelo, regresando a las profundidades del bosque dejando la casa en un silencio absoluto. <<linkreplace "Continuar."t8n>>
+				
+				
+				Tu familia te envuelve entre sus brazos.
+				
+				—No te preocupes, hijo. No puedes confiar en todos— $familia.tio evita tus ojos.
+				
+				—Gracias a Dios… Gracias… — Tu madre intenta aguantar el llanto.
+				
+				[[Continuar.->A dormir]]
+				
+			<</linkreplace>>
+			
+			
+			:: Dia 2 part 2 {"position":"275,1700","size":"100,100"}
+			Double-click this passage to edit it.
+			
+			
+			:: Día 2 [donotreturn autosave] {"position":"175,1700","size":"100,100"}
+			
+			Despiertas ante los silbidos de las aves mañaneras. Bajas ante la necesidad de sustento y te presentan con un plato de Spaguetti. $familia.tio está leyendo el periódico de hoy murmurando para si mismo mientras arruga la cara.
+			
+			<<linkappend "¿Que lees?"t8n>>
+				<<set _cont to 0>>
+				<<linkappend "linktext" t8n>>
+					content
+				<</linkappend>>
+				
+				—Oh, ¿Por que no hechas un vistazo tu?
+				
+				<<linkappend "Leer"t8n>>
+					El periódico con fecha de ayer habla sobre
+					
+					<<linkappend "Las presiones políticas que supone la unión con el escudo rojo,"t8n>>
+						<<set _cont += 1>>
+						<<update>>
+						
+						
+					José Robinson vuelve una vez más con la forma correcta de ver el mundo  —Si, más espacio para vivir, más trabajos, más comodidad, más, más, más. Pero no están viendo lo obvio, ¡Nos pondremos un gran blanco en nuestro trasero! Pronto el mismo Alkir vendrá por nosotros y te aseguro que no hay Dios en esta tierra que lo detenga. <</linkappend>>
+					
+					<<linkappend "La nueva escultura de J.R Martinson que habla sobre injusticia que enfrentan los humanos."t8n>>
+						<<set _cont += 1>>
+						<<update>>
+						
+						
+					—Es una obra maestra— Nuestro experto de arte reporta al ver la nueva obra de J.R Martinson la cual describiría como una mujer de tamaño encerrada en una esfera translúcida de cristal de la mitad de su tamaño. —En verdad refleja la dificultad que es vivir rodeado de monstruos. Te sientes encerrado en tu propia burbuja. <</linkappend>>
+					
+					
+					<<linkappend "La tienda de ropa y calzados anuncia su inauguración."t8n>>
+						<<set _cont += 1>>
+						<<update>>
+						
+						
+						—Los invito a todos a nuestro negocio, donde conseguirán todo tipo de prendas, y cualquier objeto que los ayude a vivir con más tranquilidad. Sólo por hoy ofrecemos un 40% de rebajas en todo.
+					<</linkappend>>
+					
+					<<liveblock>>
+						<<if _cont == 3>>
+							—¿Vez a lo que me refiero?
+							
+							[[¿Es sobre el comentario político?->Dia 2 part 2]]
+							
+							[[¿Es sobre la escultura?->Dia 2 part 2]]
+							
+							[[¿Es sobre el descuento?->Dia 2 part 2]]
+							
+						<</if>>
+						
+					<</liveblock>>
+				<</linkappend>>
+				
+			<</linkappend>>
+			
+			
+			
+			
+			:: El cuervo llega a tiempo [donotreturn] {"position":"850,375","size":"100,100"}
+			<<if UInv.BagHasAllItems("Inventario", $todo)>>
+				Te sientas en la mesa sintientote como la mejor persona del mundo, no puedes evitar sonreir de oreja a oreja.
+				<<elseif UInv.BagHasAnyItem("Inventario", $todo)>>
+					Te sientas feliz en la mesa, listo para recibir la recompenza de tu trabajo como recadero.
+				<<else>>
+					Te sientas en la mesa esperando la comida, como no aportaste nada para la cena como prometiste, te sientes culpable por tener hambre.
 			<</if>>
+			Tu tío lee un panfleto con el ceño fruncido.
 			
-		<</liveblock>>
-	<</linkappend>>
-	
-<</linkappend>>
-
-
-
-
-:: El cuervo llega a tiempo [donotreturn] {"position":"850,375","size":"100,100"}
-<<if UInv.BagHasAllItems("Inventario", $todo)>>
-	Te sientas en la mesa sintientote como la mejor persona del mundo, no puedes evitar sonreir de oreja a oreja.
-	<<elseif UInv.BagHasAnyItem("Inventario", $todo)>>
-		Te sientas feliz en la mesa, listo para recibir la recompenza de tu trabajo como recadero.
-	<<else>>
-		Te sientas en la mesa esperando la comida, como no aportaste nada para la cena como prometiste, te sientes culpable por tener hambre.
-<</if>>
-Tu tío lee un panfleto con el ceño fruncido.
-
-[[¿Que estás leyendo?->El cuervo llega temprano 2]]
-
-[[¿Que hay para cenar?->El cuervo llega temprano 2]]
-
-
-
-
-:: El cuervo llega temprano [donotreturn] {"position":"625,250","size":"100,100"}
-Pasas la tarde en tu casa, cae la noche y una escena se repite. Tu madre prepara la cena, tu tío lee un panfleto con el ceño fruncido, Todo está muy callado
-
-[[¿Que estás leyendo?->El cuervo llega temprano 2]]
-
-[[¿Que hay para cenar?->El cuervo llega temprano 2]]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//////////////////////////////////
-:: Main
-
-/* This should be separated */
-:: StuckPassage
-
-/* this should be deleted */
-
-/* Identation test*/
-
-<<if condition>>
-	content
-	<<elseif condition>>
-		<<for>>
-			do
-		<</for>>
-		
-	<<else>>
-		<<switch expression>>
-			<<case valueList>>
-				content
-				<<default>>
-				content
-				<<if condition>>
-					dasdas
-				<</if>>
-		<</switch>>
-		
-		<<if condition>>
-			content
-			<<elseif condition>>
-				content
-				
-				<<if condition>>
-					constent
-					<<elseif condition>>
-						content
-				<</if>>
-		<</if>>
-		
-		<<customClosedMacro>>
-		
-		<<customOpenMacro>>
+			[[¿Que estás leyendo?->El cuervo llega temprano 2]]
+			
+			[[¿Que hay para cenar?->El cuervo llega temprano 2]]
+			
+			
+			
+			
+			:: El cuervo llega temprano [donotreturn] {"position":"625,250","size":"100,100"}
+			Pasas la tarde en tu casa, cae la noche y una escena se repite. Tu madre prepara la cena, tu tío lee un panfleto con el ceño fruncido, Todo está muy callado
+			
+			[[¿Que estás leyendo?->El cuervo llega temprano 2]]
+			
+			[[¿Que hay para cenar?->El cuervo llega temprano 2]]
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			//////////////////////////////////
+			:: Main
+			
+			/* This should be separated */
+			:: StuckPassage
+			
+			/* this should be deleted */
+			
+			/* Identation test*/
+			
 			<<if condition>>
-				asdas
+				content
+				<<elseif condition>>
+					<<for>>
+						do
+					<</for>>
+					
+				<<else>>
+					<<switch expression>>
+						<<case valueList>>
+							content
+							<<default>>
+							content
+							<<if condition>>
+								dasdas
+							<</if>>
+					<</switch>>
+					
+					<<if condition>>
+						content
+						<<elseif condition>>
+							content
+							
+							<<if condition>>
+								constent
+								<<elseif condition>>
+									content
+							<</if>>
+					<</if>>
+					
+					<<customClosedMacro>>
+					
+					<<customOpenMacro>>
+						<<if condition>>
+							asdas
+						<</if>>
+					<</customOpenMacro>>
 			<</if>>
-		<</customOpenMacro>>
-<</if>>
-
-
-
-/* breaks down */
-<<set $chestEmpty = {
-	"one":true,
-	"two":true,
-	"three":false
-}>>
-<<set $chestEmpty = [
-	"one",
-	"two",
-	"three",
-	"four"
-]>>
-
-/* does not breaks down */
-<<set $chestEmpty = {
-	"one":true,
-	"two":true
-}>>
-<<set $cheese = [
-	"one",
-	"two"
-]>>
-
-set testing
-
-<<set $thisShouldBeSeparated>>
-<<unset _thisShouldBeSeparated>>
-
-
-all of the below should look like this:
-/*<<set $cheese = "a nice, sharp cheddar">>
-<<set $gold += 5>>
-<<set _counter -= 1>>
-<<unset _counter -= 1>>
-<<set _counter %= 1>>
-<<= "asdasd">>
-*/
-
-<<set $cheese = "a nice, sharp cheddar">>
-<<set $gold += 5>>
-<<set _counter %= 1>>
-<<unset _counter /= 1>>
-<<set _counter %= 1>>
-<<= "asdasd">>
-
-
-
-<<script>>
-	
-	function name(params) {
-		let x = false
-	}
-	
-<</script>>
-
-<<linkappend "linktext">>
-	content
-<</linkappend>>
+			
+			
+			
+			/* breaks down */
+			<<set $chestEmpty = {
+				"one":true,
+				"two":true,
+				"three":false
+			}>>
+			<<set $chestEmpty = [
+				"one",
+				"two",
+				"three",
+				"four"
+			]>>
+			
+			/* does not breaks down */
+			<<set $chestEmpty = {
+				"one":true,
+				"two":true
+			}>>
+			<<set $cheese = [
+				"one",
+				"two"
+			]>>
+			
+			set testing
+			
+			<<set $thisShouldBeSeparated>>
+			<<unset _thisShouldBeSeparated>>
+			
+			
+			all of the below should look like this:
+			/*<<set $cheese = "a nice, sharp cheddar">>
+			<<set $gold += 5>>
+			<<set _counter -= 1>>
+			<<unset _counter -= 1>>
+			<<set _counter %= 1>>
+			<<= "asdasd">>
+			*/
+			
+			<<set $cheese = "a nice, sharp cheddar">>
+			<<set $gold += 5>>
+			<<set _counter %= 1>>
+			<<unset _counter /= 1>>
+			<<set _counter %= 1>>
+			<<= "asdasd">>
+			
+			
+			
+			<<script>>
+				
+				function name(params) {
+					let x = false
+				}
+				
+			<</script>>
+			
+			<<linkappend "linktext">>
+				content
+			<</linkappend>>

@@ -23,17 +23,25 @@ export async function indentation(
 	document: vscode.TextDocument,
 	modifications: vscode.TextEdit[]
 ) {
-	await document.save();
-	// We get the macro list, because otherwise it will create and wait for a new one in each loop
+	/**
+	 * TODO: add a way for the user to not format the document
+	 * TODO: Add a way for the user to select if they want spaces or tabs and how many
+	 */
+	// We get the macro list here, because otherwise it will create and wait for a new one in each loop
 	const newMacroList = await macroList();
 
 	const numLines = document.lineCount;
 
 	let indentationLevel = 0;
+	/**
+	 * Two separated indentations because a child can indent into
+	 * other child´s, like adding a nested if into an elseif that
+	 * also have an elseif
+	 */
 	let childIndentationLevel = 0;
 
 	/** I needed a way to make sure the first child indentation would not unindent below the parent if it was the first child*/
-	let startOfContainer: Boolean = false;
+	let startOfContainer: boolean = false;
 
 	function setIndentationLevel(amount: number) {
 		indentationLevel = clamp(amount, 0, Infinity);
@@ -56,12 +64,34 @@ export async function indentation(
 
 		const htmlData: htmlTagData | null = getHtmlData(line.text);
 
-		//* remove any indentation
+		/**
+		 * * remove any indentation
+		 */
 		modifications.push(vscode.TextEdit.replace(line.range, line.text.trim()));
 
 		// do it here to fix a bug where sometimes it messes indentation
+		/**
+		 * * maybe all of the indentation formatting should be here
+		 * * I did not because its already bloated and is as simple
+		 * * as a replacement in some cases
+		 */
 		if (SINGLE_LINE_MACRO.test(line.text)) {
 			const exec: RegExpExecArray | null = SINGLE_LINE_MACRO.exec(line.text);
+			/**
+			 *  This is basically calculating the correct level of
+			 *  tabs depending if it has content in between the
+			 *  macros or not
+			 *  It makes a string like this:
+			 * 	<<if condition>>content<</if>>
+			 * 	into:
+			 * 	<<if condition>>\n
+			 * 	\tcontent
+			 *	<</if>>
+			 * or
+			 * <<if condition>>\n
+			 * <</if>>
+			 * if theres nothing inside
+			 */
 			if (exec) {
 				modifications.push(
 					vscode.TextEdit.replace(
@@ -79,8 +109,6 @@ export async function indentation(
 				applyIndentation(line, targetIndentationLevel);
 				continue;
 			}
-			// applyIndentation(line, targetIndentationLevel);
-			// continue;
 		}
 
 		if (htmlData) {
@@ -119,21 +147,27 @@ export async function indentation(
 			);
 		}
 
-		// * there are a lot of rules of when or not to indent so i break them into variables for redability
+		/**
+		 *  When importing a project from twine, the passages have
+		 * tags and position data as arrays and objects, i have
+		 * indentation for both so this makes sure it ignores
+		 * them if is a passage
+		 */
 		const isPassage = PASSAGE_TOKEN.test(line.text);
+		/**
+		 * Similar to passages, is hard to distinguish between arrays
+		 * and links when they have similar tokens
+		 * also skill issue for me
+		 */
 		const isLink = LINK.test(line.text);
 		//! Lower indentation
 		if (
-			(!isPassage &&
-				!macroInfo?.indenter &&
-				macroInfo?.container &&
-				!macroInfo?.start) ||
-			(!isPassage &&
-				!isLink &&
-				END_OBJECT_ARRAY_REGEX.test(line.text) &&
-				!isObjectArraySingleLine) ||
-			(!isPassage && htmlData && !htmlData.open && !htmlData.selfClosed)
-			//isHtml && isHtmlOpen && !isHtmlSingleLine
+			!isPassage &&
+			((!macroInfo?.indenter && macroInfo?.container && !macroInfo?.start) ||
+				(!isLink &&
+					END_OBJECT_ARRAY_REGEX.test(line.text) &&
+					!isObjectArraySingleLine) ||
+				(htmlData && !htmlData.open && !htmlData.selfClosed))
 		) {
 			setIndentationLevel(indentationLevel - 1);
 			if (
@@ -161,15 +195,12 @@ export async function indentation(
 
 		//! Increase indentation
 		if (
-			(!isPassage &&
-				!macroInfo?.indenter &&
-				macroInfo?.container &&
-				macroInfo?.start) ||
-			(!isPassage &&
-				!isLink &&
-				START_OBJECT_ARRAY_REGEX.test(line.text) &&
-				!isObjectArraySingleLine) ||
-			(!isPassage && htmlData && htmlData.open && !htmlData.selfClosed)
+			!isPassage &&
+			((!macroInfo?.indenter && macroInfo?.container && macroInfo?.start) ||
+				(!isLink &&
+					START_OBJECT_ARRAY_REGEX.test(line.text) &&
+					!isObjectArraySingleLine) ||
+				(htmlData && htmlData.open && !htmlData.selfClosed))
 		) {
 			setIndentationLevel(indentationLevel + 1);
 			startOfContainer = true;

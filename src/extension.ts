@@ -44,7 +44,7 @@ import { tabstring } from "./utils";
 
 import { activateFolding } from "./folding";
 
-import { formatter } from "./sugarcube-2/formatting/formatter";
+import { sugarcube2Formatter } from "./sugarcube-2/formatting/formatter";
 
 //#endregion
 
@@ -586,5 +586,5 @@ export async function activate(ctx: vscode.ExtensionContext) {
 
 	activateFolding(ctx);
 
-	formatter();
+	sugarcube2Formatter();
 }

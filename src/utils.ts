@@ -70,10 +70,6 @@ export function getMacroData(
 	text: string,
 	macroList: Record<string, macroDef>
 ): macroData {
-	// console.log(
-	// 	macroRegexFactory(macroNamePattern, MacroRegexType.Start).exec(text)
-	// );
-
 	const macroNameRegex = /<<\/?\s*([A-Za-z][\w-]*|[=-])/gm.exec(text);
 
 	if (!macroNameRegex) {
@@ -85,10 +81,6 @@ export function getMacroData(
 
 	const macroName = macroNameRegex[1];
 
-	// if (macroList[name]) {
-	// 	let macro: macroData = macroList[name];
-	// 	return macro;
-	// }
 	// * Doing it any other way did not gave me the result i wanted
 	for (const key in macroList) {
 		if (Object.prototype.hasOwnProperty.call(macroList, key)) {
@@ -240,14 +232,6 @@ export function breakDownObject(
 		} else {
 			result = text.replace(arrayOrObjectContents, elements.join(", "));
 		}
-		// const STUCK_PERIODS: RegExp = /\s*?:(\s{2,}|(?=\S))/gm;
-		// if (STUCK_PERIODS.test(result)) {
-		// 	// const stuckExec: RegExpExecArray = STUCK_PERIODS.exec(
-		// 	// 	result
-		// 	// ) as RegExpExecArray;
-
-		// 	result = result.replace(STUCK_PERIODS, ": ");
-		// }
 	}
 
 	return result;

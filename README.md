@@ -11,6 +11,16 @@ sometimes you need to format twice or trice if the macros are stuck together.
 
 it has barebones html support and javascript
 
+## Installation
+
+Download the .VSIX file in the releases page, then go to your vscode and open the extensions tab, click the views and more actions buttons, and then click install form VSIX.
+![views and more actions](image.png)
+
+![install from vsix](image-1.png)
+
+select the file and thats it. 
+NOTE: you may need to uninstall the original twee3-language-tools if it causes any problems
+
 ## Original README
 
 Syntax highlighting for HTML and select storyformats (see [Features](#features)) on top of Twee 3 code.

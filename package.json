@@ -31,14 +31,12 @@
 	"categories": [
 		"Language Packs",
 		"Extension Packs",
-		"Snippets",
-		"Formatters"
+		"Snippets"
 	],
 	"keywords": [
 		"twee",
 		"twee3",
-		"twine",
-		"format"
+		"twine"
 	],
 	"activationEvents": [
 		"workspaceContains:**/*.{tw,twee}"

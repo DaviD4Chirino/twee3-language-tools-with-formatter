@@ -9,12 +9,13 @@ import {
 } from "../../utils";
 import { macroList } from "../macros";
 import { clamp } from "lodash";
-import { SINGLE_LINE_OBJECT_ARRAY } from "./commonRegExp";
-
-const LINK: RegExp = /\[\[.*\]\]/m;
-const PASSAGE_TOKEN: RegExp = /::/m;
-const START_OBJECT_ARRAY_REGEX: RegExp = /{|\[/m;
-const END_OBJECT_ARRAY_REGEX: RegExp = /}|\]/m;
+import {
+	END_OBJECT_ARRAY_REGEX,
+	LINK,
+	PASSAGE_TOKEN,
+	SINGLE_LINE_OBJECT_ARRAY,
+	START_OBJECT_ARRAY_REGEX,
+} from "./commonRegExp";
 
 const SINGLE_LINE_HTML_TAG: RegExp = />(.*)(?=<\/)/m;
 const SINGLE_LINE_MACRO: RegExp = />>(.*)(?=<<\/)/m;

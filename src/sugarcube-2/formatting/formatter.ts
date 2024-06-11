@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { indentation } from "./indentation";
 import { fullDocumentFormat } from "./fullDocumentFormat";
 import { lineByLineFormat } from "./lineByLineFormat";
+import { tabstring } from "../../utils";
 
 export async function sugarcube2Formatter() {
 	vscode.languages.registerDocumentFormattingEditProvider("twee3-sugarcube-2", {
@@ -13,6 +14,8 @@ export async function sugarcube2Formatter() {
 			fullDocumentFormat(document, modifications);
 			lineByLineFormat(document, modifications);
 			await indentation(document, modifications);
+			console.log(tabstring());
+
 			return modifications;
 		},
 	});

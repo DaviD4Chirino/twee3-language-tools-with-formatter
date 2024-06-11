@@ -53,15 +53,24 @@ export function tabstring() {
 }
 
 export function indentationConstructor(levels: number): string {
-	// const editorConfig = vscode.workspace.getConfiguration("editor");
-	// console.log(editorConfig.get("tabSize"));
-	// console.log(editorConfig.get("insertSpaces"));
 	if (levels < 0) {
 		return "";
 	}
+	// Given a number, it returns the same number on empty strings
+	function getLength(amount: number) {
+		const _arr: string[] = [];
+		for (let i = 0; i < amount; i++) {
+			_arr.push(" ");
+		}
+		return _arr.join("");
+	}
+
 	const arr: string[] = [];
+	const length: string =
+		tabstring() == "\t" ? "\t" : getLength(tabstring() as number);
+
 	for (let level = 0; level < levels; level++) {
-		arr.push("\t");
+		arr.push(length);
 	}
 	return arr.join("");
 }
